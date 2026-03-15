@@ -95,38 +95,38 @@ paths:
 # ==================== SOLICITUDES ====================
 
   /solicitudes:
-  post:
-    summary: Registrar solicitud académica
-    description: Registra una solicitud académica asociada a un usuario activo.
-    security:
-      - bearerAuth: []
-    requestBody:
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/CrearSolicitudDTO'
-    responses:
-      '201':
-        description: Solicitud creada correctamente
+    post:
+      summary: Registrar solicitud académica
+      description: Registra una solicitud académica asociada a un usuario activo.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SolicitudDTO'
+              $ref: '#/components/schemas/CrearSolicitudDTO'
+      responses:
+        '201':
+          description: Solicitud creada correctamente
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudDTO'
 
-      '400':
-        description: Datos inválidos en la solicitud
+        '400':
+          description: Datos inválidos en la solicitud
 
-      '404':
-        description: Usuario solicitante no encontrado
+        '404':
+          description: Usuario solicitante no encontrado
 
-      '409':
-        description: El usuario solicitante está inactivo y no puede registrar solicitudes
+        '409':
+          description: El usuario solicitante está inactivo y no puede registrar solicitudes
 
     get:
       summary: Consultar solicitudes
       security:
-        - bearerAuth: []
+        - bearerAuth: [ ]
       parameters:
         - in: query
           name: estadoSolicitud
@@ -202,92 +202,92 @@ paths:
 # ==================== CLASIFICACIÓN ====================
 
   /solicitudes/{id}/clasificar:
-  put:
-    summary: Clasificar solicitud
-    description: Permite clasificar una solicitud académica existente asignándole un tipo de solicitud.
-    security:
-      - bearerAuth: []
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-        description: Identificador de la solicitud a clasificar
-    requestBody:
-      required: true
-      content:
-        application/json:
+    put:
+      summary: Clasificar solicitud
+      description: Permite clasificar una solicitud académica existente asignándole un tipo de solicitud.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
           schema:
-            $ref: '#/components/schemas/ClasificacionDTO'
-    responses:
-      '200':
-        description: Clasificación aplicada correctamente
-      '400':
-        description: Datos de clasificación inválidos
-      '404':
-        description: Solicitud no encontrada
-      '409':
-        description: La solicitud no se encuentra en un estado válido para ser clasificada
+            type: string
+          description: Identificador de la solicitud a clasificar
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClasificacionDTO'
+      responses:
+        '200':
+          description: Clasificación aplicada correctamente
+        '400':
+          description: Datos de clasificación inválidos
+        '404':
+          description: Solicitud no encontrada
+        '409':
+          description: La solicitud no se encuentra en un estado válido para ser clasificada
 
 # ==================== PRIORIZACIÓN ====================
 
   /solicitudes/{id}/priorizar:
-  put:
-    summary: Asignar prioridad a una solicitud
-    description: Permite asignar una prioridad a una solicitud previamente clasificada considerando impacto académico y fecha límite.
-    security:
-      - bearerAuth: []
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-        description: Identificador de la solicitud
-    requestBody:
-      required: true
-      content:
-        application/json:
+    put:
+      summary: Asignar prioridad a una solicitud
+      description: Permite asignar una prioridad a una solicitud previamente clasificada considerando impacto académico y fecha límite.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
           schema:
-            $ref: '#/components/schemas/PrioridadSolicitudDTO'
-    responses:
-      '200':
-        description: Prioridad asignada correctamente
-      '400':
-        description: Datos inválidos
-      '404':
-        description: Solicitud no encontrada
-      '409':
-        description: La solicitud debe estar clasificada antes de poder priorizarse
+            type: string
+          description: Identificador de la solicitud
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrioridadSolicitudDTO'
+      responses:
+        '200':
+          description: Prioridad asignada correctamente
+        '400':
+          description: Datos inválidos
+        '404':
+          description: Solicitud no encontrada
+        '409':
+          description: La solicitud debe estar clasificada antes de poder priorizarse
 
 # ==================== RESPONSABLE ====================
 
   /solicitudes/{id}/responsable:
-  put:
-    summary: Asignar responsable
-    description: Permite asignar un responsable activo a una solicitud y registrar la acción en el historial.
-    security:
-      - bearerAuth: []
-    parameters:
-      - in: path
-        name: id
-        required: true
-        schema:
-          type: string
-    requestBody:
-      required: true
-      content:
-        application/json:
+    put:
+      summary: Asignar responsable
+      description: Permite asignar un responsable activo a una solicitud y registrar la acción en el historial.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
           schema:
-            $ref: '#/components/schemas/ResponsableDTO'
-    responses:
-      '200':
-        description: Responsable asignado correctamente
-      '404':
-        description: Solicitud o usuario responsable no encontrado
-      '409':
-        description: El responsable se encuentra inactivo
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResponsableDTO'
+      responses:
+        '200':
+          description: Responsable asignado correctamente
+        '404':
+          description: Solicitud o usuario responsable no encontrado
+        '409':
+          description: El responsable se encuentra inactivo
 
 # ==================== CICLO DE VIDA ====================
 
