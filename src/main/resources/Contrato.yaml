@@ -1,0 +1,701 @@
+openapi: 3.1.0
+info:
+  title: API Gestión de Solicitudes Académicas
+  version: 1.0.0
+  description: API REST para gestionar solicitudes académicas, usuarios, historial y funcionalidades de IA.
+
+servers:
+  - url: http://localhost:8080/api
+
+paths:
+
+# ==================== AUTENTICACIÓN ====================
+
+  /auth/login:
+    post:
+      summary: Autenticación de usuario
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Token generado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Credenciales inválidas
+
+# ==================== USUARIOS ====================
+
+  /usuarios:
+    post:
+      summary: Crear usuario
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearUsuarioDTO'
+      responses:
+        '201':
+          description: Usuario creado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioDTO'
+
+    get:
+      summary: Listar usuarios
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: rol
+          schema:
+            $ref: '#/components/schemas/Rol'
+        - in: query
+          name: activo
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Lista de usuarios
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UsuarioDTO'
+
+  /usuarios/{id}/validar-activo:
+    get:
+      summary: Validar si usuario está activo
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Usuario activo
+        '409':
+          description: Usuario inactivo
+
+# ==================== SOLICITUDES ====================
+
+  /solicitudes:
+  post:
+    summary: Registrar solicitud académica
+    description: Registra una solicitud académica asociada a un usuario activo.
+    security:
+      - bearerAuth: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/CrearSolicitudDTO'
+    responses:
+      '201':
+        description: Solicitud creada correctamente
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SolicitudDTO'
+
+      '400':
+        description: Datos inválidos en la solicitud
+
+      '404':
+        description: Usuario solicitante no encontrado
+
+      '409':
+        description: El usuario solicitante está inactivo y no puede registrar solicitudes
+
+    get:
+      summary: Consultar solicitudes
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: estadoSolicitud
+          schema:
+            $ref: '#/components/schemas/EstadoSolicitud'
+
+        - in: query
+          name: tipoSolicitud
+          schema:
+            $ref: '#/components/schemas/TipoSolicitud'
+
+        - in: query
+          name: prioridad
+          schema:
+            type: string
+
+        - in: query
+          name: responsable
+          schema:
+            type: string
+
+        - in: query
+          name: fechaDesde
+          schema:
+            type: string
+            format: date
+
+        - in: query
+          name: fechaHasta
+          schema:
+            type: string
+            format: date
+
+        - in: query
+          name: page
+          schema:
+            type: integer
+
+        - in: query
+          name: size
+          schema:
+            type: integer
+
+      responses:
+        '200':
+          description: Lista de solicitudes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudDTO'
+
+  /solicitudes/{id}:
+    get:
+      summary: Obtener solicitud por ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Solicitud encontrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudDTO'
+
+# ==================== CLASIFICACIÓN ====================
+
+  /solicitudes/{id}/clasificar:
+  put:
+    summary: Clasificar solicitud
+    description: Permite clasificar una solicitud académica existente asignándole un tipo de solicitud.
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: Identificador de la solicitud a clasificar
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ClasificacionDTO'
+    responses:
+      '200':
+        description: Clasificación aplicada correctamente
+      '400':
+        description: Datos de clasificación inválidos
+      '404':
+        description: Solicitud no encontrada
+      '409':
+        description: La solicitud no se encuentra en un estado válido para ser clasificada
+
+# ==================== PRIORIZACIÓN ====================
+
+  /solicitudes/{id}/priorizar:
+  put:
+    summary: Asignar prioridad a una solicitud
+    description: Permite asignar una prioridad a una solicitud previamente clasificada considerando impacto académico y fecha límite.
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        description: Identificador de la solicitud
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PrioridadSolicitudDTO'
+    responses:
+      '200':
+        description: Prioridad asignada correctamente
+      '400':
+        description: Datos inválidos
+      '404':
+        description: Solicitud no encontrada
+      '409':
+        description: La solicitud debe estar clasificada antes de poder priorizarse
+
+# ==================== RESPONSABLE ====================
+
+  /solicitudes/{id}/responsable:
+  put:
+    summary: Asignar responsable
+    description: Permite asignar un responsable activo a una solicitud y registrar la acción en el historial.
+    security:
+      - bearerAuth: []
+    parameters:
+      - in: path
+        name: id
+        required: true
+        schema:
+          type: string
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResponsableDTO'
+    responses:
+      '200':
+        description: Responsable asignado correctamente
+      '404':
+        description: Solicitud o usuario responsable no encontrado
+      '409':
+        description: El responsable se encuentra inactivo
+
+# ==================== CICLO DE VIDA ====================
+
+  /solicitudes/{id}/estado:
+    put:
+      summary: Cambiar estado de solicitud
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambioEstadoDTO'
+      responses:
+        '200':
+          description: Estado actualizado
+        '409':
+          description: Transición inválida
+
+  /solicitudes/{id}/estado/validar:
+    post:
+      summary: Validar transición de estado
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CambioEstadoDTO'
+      responses:
+        '200':
+          description: Transición válida
+        '409':
+          description: Transición inválida
+
+# ==================== HISTORIAL ====================
+
+  /solicitudes/{id}/historial:
+    get:
+      summary: Consultar historial
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Historial de la solicitud
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HistorialSolicitudDTO'
+
+    post:
+      summary: Registrar acción en historial
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegistroHistorialDTO'
+      responses:
+        '201':
+          description: Acción registrada
+
+# ==================== CIERRE ====================
+
+  /solicitudes/{id}/validar-cierre:
+    get:
+      summary: Validar si solicitud puede cerrarse
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Puede cerrarse
+        '409':
+          description: Aún no puede cerrarse
+
+  /solicitudes/{id}/cerrar:
+    put:
+      summary: Cerrar solicitud
+      description: Permite cerrar una solicitud que se encuentre en estado Atendida registrando una observación de cierre.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CierreDTO'
+      responses:
+        '200':
+          description: Solicitud cerrada correctamente
+        '404':
+          description: Solicitud no encontrada
+        '409':
+          description: La solicitud debe estar en estado Atendida para poder cerrarse o ya se encuentra cerrada
+
+# ==================== IA ====================
+
+  /solicitudes/{id}/resumen:
+    get:
+      summary: Generar resumen con IA
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resumen generado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResumenSolicitudDTO'
+        '503':
+          description: Servicio IA no disponible
+
+  /solicitudes/sugerir-clasificacion:
+    post:
+      summary: Sugerir clasificación automática
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SugerenciaClasificacionRequestDTO'
+      responses:
+        '200':
+          description: Sugerencia generada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SugerenciaClasificacionResponseDTO'
+
+  /solicitudes/{id}/confirmar-clasificacion:
+    put:
+      summary: Confirmar clasificación sugerida por IA
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfirmacionClasificacionDTO'
+      responses:
+        '200':
+          description: Clasificación confirmada
+
+components:
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    UsuarioDTO:
+      type: object
+      properties:
+        idUsuario:
+          type: string
+        nombre:
+          type: string
+        correo:
+          type: string
+        rol:
+          $ref: '#/components/schemas/Rol'
+        activo:
+          type: boolean
+
+    CrearUsuarioDTO:
+      type: object
+      properties:
+        nombre:
+          type: string
+        correo:
+          type: string
+        password:
+          type: string
+        rol:
+          $ref: '#/components/schemas/Rol'
+
+    Rol:
+      type: string
+      enum:
+        - Estudiante
+        - Docente
+        - Administrativo
+
+    CrearSolicitudDTO:
+      type: object
+      properties:
+        descripcion:
+          type: string
+        tipoSolicitud:
+          $ref: '#/components/schemas/TipoSolicitud'
+        canalOrigen:
+          type: string
+        solicitanteId:
+          type: string
+
+    SolicitudDTO:
+      type: object
+      properties:
+        idSolicitud:
+          type: string
+        descripcion:
+          type: string
+        fechaHoraRegistro:
+          type: string
+          format: date-time
+        estadoSolicitud:
+          $ref: '#/components/schemas/EstadoSolicitud'
+
+    ClasificacionDTO:
+      type: object
+      properties:
+        tipoSolicitud:
+          $ref: '#/components/schemas/TipoSolicitud'
+
+    PrioridadSolicitudDTO:
+      type: object
+      required:
+        - prioridad
+        - impacto
+        - fechaLimite
+        - justificacion
+      properties:
+        prioridad:
+          $ref: '#/components/schemas/Prioridad'
+        impacto:
+          type: string
+          description: Impacto académico generado por la solicitud
+        fechaLimite:
+          type: string
+          format: date
+          description: Fecha límite para resolver la solicitud
+        justificacion:
+          type: string
+          description: Justificación de la prioridad asignada
+
+    Prioridad:
+      type: string
+      enum:
+        - Baja
+        - Media
+        - Alta
+
+    ResponsableDTO:
+      type: object
+      properties:
+        usuarioId:
+          type: string
+
+    CambioEstadoDTO:
+      type: object
+      properties:
+        estadoAnterior:
+          $ref: '#/components/schemas/EstadoSolicitud'
+        estadoNuevo:
+          $ref: '#/components/schemas/EstadoSolicitud'
+
+    RegistroHistorialDTO:
+      type: object
+      properties:
+        accionRealizada:
+          type: string
+        observaciones:
+          type: string
+        usuarioId:
+          type: string
+
+    HistorialSolicitudDTO:
+      type: object
+      properties:
+        fechaHora:
+          type: string
+          format: date-time
+          description: Fecha y hora en la que se registró la acción
+        accionRealizada:
+          type: string
+          description: Acción ejecutada sobre la solicitud
+        usuarioId:
+          type: string
+          description: Identificador del usuario responsable de la acción
+        observaciones:
+          type: string
+          description: Comentarios u observaciones asociadas a la acción
+
+    CierreDTO:
+      type: object
+      required:
+        - observacion
+      properties:
+        observacion:
+          type: string
+          description: Observación registrada al cerrar la solicitud
+
+    TipoSolicitud:
+      type: string
+      enum:
+        - RegistroAsignaturas
+        - Homologacion
+        - CancelacionAsignaturas
+        - SolicitudCupos
+        - ConsultaAcademica
+
+    EstadoSolicitud:
+      type: string
+      enum:
+        - Registrada
+        - Clasificada
+        - EnAtencion
+        - Atendida
+        - Cerrada
+
+    ResumenSolicitudDTO:
+      type: object
+      properties:
+        resumenGenerado:
+          type: string
+
+    SugerenciaClasificacionRequestDTO:
+      type: object
+      properties:
+        descripcion:
+          type: string
+
+    SugerenciaClasificacionResponseDTO:
+      type: object
+      properties:
+        tipoSolicitudSugerido:
+          $ref: '#/components/schemas/TipoSolicitud'
+        prioridadSugerida:
+          $ref: '#/components/schemas/Prioridad'
+
+    ConfirmacionClasificacionDTO:
+      type: object
+      properties:
+        tipoSolicitud:
+          $ref: '#/components/schemas/TipoSolicitud'
+        prioridad:
+          type: string
