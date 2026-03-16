@@ -1,3 +1,5 @@
+package org.example.gestionsolicitudes.Model;
+
 public enum TipoSolicitud {
     REGISTRO_ASIGNATURA,
     HOMOLOGACION,
