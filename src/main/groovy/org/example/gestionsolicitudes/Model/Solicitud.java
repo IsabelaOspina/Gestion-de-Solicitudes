@@ -30,17 +30,43 @@ public class Solicitud {
     private LocalDateTime fechaHoraRegistro;
 
     @Enumerated(EnumType.STRING)
-    @Column(name="Canal origen", nullable = false)
+    @Column(name="Canal_origen", nullable = false)
     private CanalOrigen canalOrigen;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="Tipo_Solicitud", nullable = false)
+    private TipoSolicitud TipoSolicitud;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name="Estado_Solicitud", nullable = false)
+    private EstadoSolicitud EstadoSolicitud;
+
+    @Column(name = "fecha_limite", nullable = false)
+    private LocalDateTime fechaLimite;
+
+    @PrePersist
+    public void asignarFechaRegistroYLimite() {
+        this.fechaHoraRegistro = LocalDateTime.now();
+        this.fechaLimite = this.fechaHoraRegistro.plusDays(15);
+    }
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario solicitante;
+
+    @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
+    private Usuario ResponsableAsignado;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Nivel_Prioridad", nullable = false)
+    private NivelPrioridad nivelPrioridad;
 
     @NotBlank(message = "Se debe justificar la prioridad")
     @Size(max = 250, message = "Máximo 250 caracteres")
     @Column(name = "Justificacion de prioridad", nullable = false, unique = true,length = 250)
     private String justificacionPrioridad;
 
-
-
-
-
-
+    
 }
+
