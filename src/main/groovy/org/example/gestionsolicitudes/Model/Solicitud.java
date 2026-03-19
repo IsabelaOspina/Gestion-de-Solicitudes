@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "solicitudes")
@@ -19,7 +20,7 @@ import java.time.LocalDateTime;
 public class Solicitud {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idSolicitud;
 
     @NotBlank(message = "La solicitud debe tener una descripción")
     @Size(max = 250, message = "Máximo 250 caracteres")
@@ -64,11 +65,11 @@ public class Solicitud {
     }
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "solicitante_id", nullable = false)
     private Usuario solicitante;
 
     @ManyToOne
-    @JoinColumn(name = "usuario_id", nullable = false)
+    @JoinColumn(name = "responsable_id", nullable = false)
     private Usuario ResponsableAsignado;
 
     @Enumerated(EnumType.STRING)
@@ -79,6 +80,9 @@ public class Solicitud {
     @Size(max = 250, message = "Máximo 250 caracteres")
     @Column(name = "Justificacion de prioridad", nullable = false, unique = true,length = 250)
     private String justificacionPrioridad;
+
+    @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HistorialSolicitud> historial;
 
     
 }
