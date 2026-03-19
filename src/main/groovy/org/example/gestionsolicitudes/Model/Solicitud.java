@@ -47,7 +47,20 @@ public class Solicitud {
     @PrePersist
     public void asignarFechaRegistroYLimite() {
         this.fechaHoraRegistro = LocalDateTime.now();
-        this.fechaLimite = this.fechaHoraRegistro.plusDays(15);
+
+        if (this.nivelPrioridad != null) {
+            switch (this.nivelPrioridad) {
+                case ALTA:
+                    this.fechaLimite = this.fechaHoraRegistro.plusDays(3);
+                    break;
+                case MEDIA:
+                    this.fechaLimite = this.fechaHoraRegistro.plusDays(7);
+                    break;
+                case BAJA:
+                    this.fechaLimite = this.fechaHoraRegistro.plusDays(15);
+                    break;
+            }
+        }
     }
 
     @ManyToOne
