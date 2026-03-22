@@ -6,6 +6,6 @@ import org.example.gestionsolicitudes.Model.Rol;
 public class CrearUsuarioRequestDTO {
     private String nombre;
     private String correo;
-    private String contrasena;
+    private String password;
     private Rol rol;
 }

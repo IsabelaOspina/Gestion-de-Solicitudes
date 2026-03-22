@@ -30,7 +30,7 @@ public class Usuario {
 
     @NotBlank(message = "La contraseña es obligatoria")
     @Column(name = "contrasena", nullable = false)
-    String contrasena;
+    String password;
 
     @NotNull(message = "El rol del usuario es obligatorio")
     @Enumerated(EnumType.STRING)
