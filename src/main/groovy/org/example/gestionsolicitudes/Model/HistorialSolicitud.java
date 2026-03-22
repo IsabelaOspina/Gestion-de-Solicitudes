@@ -36,6 +36,4 @@ public class HistorialSolicitud {
     @ManyToOne
     @JoinColumn(name = "id_solicitud", nullable = false)
     private Solicitud solicitud;
-
-
 }
