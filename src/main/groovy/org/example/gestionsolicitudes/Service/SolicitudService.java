@@ -26,10 +26,13 @@ public class SolicitudService {
         Usuario solicitante = usuarioRepository.findById(idSolicitante)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitante no encontrado"));
 
+        if (solicitante.getRol() == Rol.ADMINISTRATIVO) {
+            throw new IllegalStateException("Los administrativos no pueden ser solicitantes");
+        }
+
         Solicitud solicitud = SolicitudMapper.aEntidad(dto, solicitante);
         solicitud.setFechaHoraRegistro(LocalDateTime.now());
 
-        // Historial inicial
         HistorialSolicitud historial = HistorialSolicitud.builder()
                 .fechaHora(LocalDateTime.now())
                 .accionRealizada("Registro de solicitud")
@@ -39,6 +42,7 @@ public class SolicitudService {
         solicitud.getHistorial().add(historial);
 
         return SolicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
+
     }
 
     // RF-03: Priorización
@@ -63,6 +67,10 @@ public class SolicitudService {
             throw new IllegalStateException("El responsable no está activo");
         }
 
+        if (responsable.getRol() != Rol.ADMINISTRATIVO) {
+            throw new IllegalStateException("Solo los administrativos pueden ser responsables");
+        }
+
         solicitud.setResponsableAsignado(responsable);
         solicitud.setEstadoSolicitud(EstadoSolicitud.EN_ATENCION);
 
@@ -75,8 +83,8 @@ public class SolicitudService {
         solicitud.getHistorial().add(historial);
 
         return SolicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
-    }
 
+    }
     // RF-07: Consultas simples (estado, tipo, prioridad, responsable)
     public List<SolicitudResponseDTO> consultarPorEstado(EstadoSolicitud estado) {
         return solicitudRepository.findByEstadoSolicitud(estado)
