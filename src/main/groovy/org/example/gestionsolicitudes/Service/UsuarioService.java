@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class UsuarioService {
 
@@ -29,11 +28,38 @@ public class UsuarioService {
         }
 
         Usuario usuario = usuarioMapper.aEntidad(dto);
-
         usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
-        
+
         return usuarioMapper.aDTO(usuarioGuardado);
+    }
+
+    public Usuario obtenerPorId(Long id) {
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+    public Usuario obtenerPorCorreo(String correo) {
+        return usuarioRepository.findByCorreoElectronico(correo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    }
+
+    public void validarUsuarioActivo(Long id) {
+        Usuario usuario = obtenerPorId(id);
+
+        if (!usuario.getActivo()) {
+            throw new RuntimeException("El usuario está inactivo");
+        }
+    }
+
+    public Usuario obtenerUsuarioActivo(Long id) {
+        Usuario usuario = obtenerPorId(id);
+
+        if (!usuario.getActivo()) {
+            throw new RuntimeException("El usuario está inactivo");
+        }
+
+        return usuario;
     }
 }
