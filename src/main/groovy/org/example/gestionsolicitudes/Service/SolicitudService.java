@@ -106,6 +106,28 @@ public class SolicitudService {
                 .toList();
     }
 
+    public List<SolicitudResponseDTO> consultarPorRangoFechas(LocalDateTime desde, LocalDateTime hasta) {
+        return solicitudRepository.findByFechaHoraRegistroBetween(desde, hasta)
+                .stream()
+                .map(SolicitudMapper::aResponseDTO)
+                .toList();
+    }
+
+    public List<SolicitudResponseDTO> consultarPorEstadoYTipo(EstadoSolicitud estado, TipoSolicitud tipo) {
+        return solicitudRepository.findByEstadoSolicitudAndTipoSolicitud(estado, tipo)
+                .stream()
+                .map(SolicitudMapper::aResponseDTO)
+                .toList();
+    }
+
+    public List<SolicitudResponseDTO> consultarPorSolicitante(Usuario solicitante) {
+        return solicitudRepository.findBySolicitante(solicitante)
+                .stream()
+                .map(SolicitudMapper::aResponseDTO)
+                .toList();
+    }
+
+
     // RF-08: Cierre de solicitud
     public SolicitudResponseDTO cerrarSolicitud(Long idSolicitud, String observacionCierre) {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
