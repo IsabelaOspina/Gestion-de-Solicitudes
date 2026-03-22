@@ -1,5 +1,4 @@
-package org.example.gestionsolicitudes.config
-
+package org.example.gestionsolicitudes.Config
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.*
@@ -13,18 +12,18 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig {
 
     @Autowired
-    JwtFilter jwtFilter   
+    JwtFilter jwtFilter
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
         http
-            .csrf { it.disable() }
-            .authorizeHttpRequests {
-                it.requestMatchers("/auth/**").permitAll()
-                  .anyRequest().authenticated()
-            }
-            .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter)
+                .csrf { it.disable() }
+                .authorizeHttpRequests {
+                    it.requestMatchers("/auth/**").permitAll()
+                            .anyRequest().authenticated()
+                }
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter)
 
         return http.build()
     }

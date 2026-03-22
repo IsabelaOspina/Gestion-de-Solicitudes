@@ -1,4 +1,5 @@
-package org.example.gestionsolicitudes.config
+package org.example.gestionsolicitudes.Config
+
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
