@@ -17,7 +17,7 @@ paths:
       operationId: login
       requestBody:
         required: true
-        content:
+        content:5
           application/json:
             schema:
               $ref: '#/components/schemas/LoginRequest'

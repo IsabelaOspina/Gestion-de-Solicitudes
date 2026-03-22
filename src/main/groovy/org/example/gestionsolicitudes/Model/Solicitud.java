@@ -24,7 +24,7 @@ public class Solicitud {
 
     @NotBlank(message = "La solicitud debe tener una descripción")
     @Size(max = 250, message = "Máximo 250 caracteres")
-    @Column(nullable = false, length = 250)
+    @Column(name = "Descripcion", nullable = false,length = 250)
     private String descripcion;
 
     @Column(updatable = false)

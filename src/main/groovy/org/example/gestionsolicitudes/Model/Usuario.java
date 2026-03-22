@@ -28,6 +28,10 @@ public class Usuario {
     @Column(name="Correo_electronico",nullable = false, unique = true)
     private String correoElectronico;
 
+    @NotBlank(message = "La contraseña es obligatoria")
+    @Column(name = "contrasena", nullable = false)
+    String contrasena;
+
     @NotNull(message = "El rol del usuario es obligatorio")
     @Enumerated(EnumType.STRING)
     @Column(name="Rol",nullable = false)
