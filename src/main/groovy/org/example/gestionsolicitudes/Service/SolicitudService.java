@@ -19,12 +19,12 @@ import java.util.List;
 
 public class SolicitudService {
     private final SolicitudRepository solicitudRepository;
-    private final UsuarioRepository usuarioRepository;
+    private final UsuarioService usuarioService;
+
 
     // RF-01: Registrar solicitud
     public SolicitudResponseDTO registrarSolicitud(CrearSolicitudRequestDTO dto, Long idSolicitante) {
-        Usuario solicitante = usuarioRepository.findById(idSolicitante)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitante no encontrado"));
+        Usuario solicitante = usuarioService.obtenerUsuarioActivo(idSolicitante);
 
         if (solicitante.getRol() == Rol.ADMINISTRATIVO) {
             throw new IllegalStateException("Los administrativos no pueden ser solicitantes");
@@ -60,8 +60,7 @@ public class SolicitudService {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
-        Usuario responsable = usuarioRepository.findById(idResponsable)
-                .orElseThrow(() -> new IllegalArgumentException("Responsable no encontrado"));
+        Usuario responsable = usuarioService.obtenerUsuarioActivo(idResponsable);
 
         if (!responsable.getActivo()) {
             throw new IllegalStateException("El responsable no está activo");
