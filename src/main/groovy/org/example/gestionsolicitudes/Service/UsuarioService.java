@@ -22,24 +22,18 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // 🔥 CREAR USUARIO
     public UsuarioResponseDTO crearUsuario(CrearUsuarioRequestDTO dto) {
 
-        // 1. Validar si ya existe el correo
         if (usuarioRepository.existeCorreoElectronico(dto.getCorreo())) {
             throw new RuntimeException("El correo ya está registrado");
         }
 
-        // 2. Convertir DTO → Entity
         Usuario usuario = usuarioMapper.aEntidad(dto);
 
-        // 3. 🔐 Encriptar contraseña
         usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
 
-        // 4. Guardar en BD
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
-
-        // 5. Convertir a DTO de respuesta
+        
         return usuarioMapper.aDTO(usuarioGuardado);
     }
 }
