@@ -83,7 +83,5 @@ public class Solicitud {
 
     @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<HistorialSolicitud> historial;
-
-    
 }
 
