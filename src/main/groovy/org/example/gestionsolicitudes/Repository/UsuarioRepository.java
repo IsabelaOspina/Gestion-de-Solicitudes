@@ -13,15 +13,10 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
 
     Optional<Usuario> findByCorreoElectronico(String correoElectronico);
 
-    // Buscar por nombre exacto
-    List<Usuario> findByNombreUsuario(String nombreUsuario);
-
     // Buscar usuarios activos
     List<Usuario> findByActivoTrue();
 
     // Buscar por rol
     List<Usuario> findByRol(Rol rol);
 
-    // Buscar por nombre que contenga un fragmento
-    List<Usuario> findByNombreUsuarioContainingIgnoreCase(String fragmento);
 }
