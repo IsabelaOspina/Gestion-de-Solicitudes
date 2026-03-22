@@ -24,7 +24,7 @@ public class Solicitud {
 
     @NotBlank(message = "La solicitud debe tener una descripción")
     @Size(max = 250, message = "Máximo 250 caracteres")
-    @Column(name = "Descripcion", nullable = false, unique = true,length = 250)
+    @Column(nullable = false, length = 250)
     private String descripcion;
 
     @Column(updatable = false)
@@ -36,11 +36,11 @@ public class Solicitud {
 
     @Enumerated(EnumType.STRING)
     @Column(name="Tipo_Solicitud", nullable = false)
-    private TipoSolicitud TipoSolicitud;
+    private TipoSolicitud tipoSolicitud;
 
     @Enumerated(EnumType.STRING)
     @Column(name="Estado_Solicitud", nullable = false)
-    private EstadoSolicitud EstadoSolicitud;
+    private EstadoSolicitud estadoSolicitud;
 
     @Column(name = "fecha_limite", nullable = false)
     private LocalDateTime fechaLimite;
@@ -70,7 +70,7 @@ public class Solicitud {
 
     @ManyToOne
     @JoinColumn(name = "responsable_id", nullable = false)
-    private Usuario ResponsableAsignado;
+    private Usuario responsableAsignado;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "Nivel_Prioridad", nullable = false)
@@ -78,7 +78,7 @@ public class Solicitud {
 
     @NotBlank(message = "Se debe justificar la prioridad")
     @Size(max = 250, message = "Máximo 250 caracteres")
-    @Column(name = "Justificacion de prioridad", nullable = false, unique = true,length = 250)
+    @Column(name = "Justificacion_prioridad", nullable = false, unique = true,length = 250)
     private String justificacionPrioridad;
 
     @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
