@@ -1,6 +1,7 @@
 package org.example.gestionsolicitudes.Service;
 
 
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
 import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
@@ -18,7 +19,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-
+@Getter
 public class SolicitudService {
 
     private final SolicitudRepository solicitudRepository;

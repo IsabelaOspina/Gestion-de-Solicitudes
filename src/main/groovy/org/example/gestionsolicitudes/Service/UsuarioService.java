@@ -1,5 +1,6 @@
 package org.example.gestionsolicitudes.Service;
 
+import lombok.Getter;
 import org.example.gestionsolicitudes.Dtos.CrearUsuarioRequestDTO;
 import org.example.gestionsolicitudes.Dtos.UsuarioResponseDTO;
 import org.example.gestionsolicitudes.Mapper.UsuarioMapper;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
+@Getter
 public class UsuarioService {
 
     @Autowired

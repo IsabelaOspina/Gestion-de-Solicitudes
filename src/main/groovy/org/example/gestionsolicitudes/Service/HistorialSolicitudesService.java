@@ -1,6 +1,7 @@
 package org.example.gestionsolicitudes.Service;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.gestionsolicitudes.Dtos.HistorialSolicitudesRequestDTO;
 import org.example.gestionsolicitudes.Dtos.HistorialSolicitudesResponseDTO;
@@ -15,6 +16,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Getter
 
 public class HistorialSolicitudesService {
 
@@ -22,21 +24,21 @@ public class HistorialSolicitudesService {
 
     private final SolicitudRepository solicitudRepository;
 
-    private final HistorialSolicitudesMapper mapper;
+    private final HistorialSolicitudesMapper historialMapper;
 
     //RF-06
     public HistorialSolicitudesResponseDTO registrarAccion(HistorialSolicitudesRequestDTO dto) {
         Solicitud solicitud = solicitudRepository.findById(dto.getIdSolicitud())
                 .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada"));
 
-        HistorialSolicitud historial = mapper.aEntidad(dto, solicitud);
+        HistorialSolicitud historial = historialMapper.aEntidad(dto, solicitud);
         historial = historialRepository.save(historial);
 
-        return mapper.toResponse(historial);
+        return historialMapper.toResponse(historial);
     }
 
     public List<HistorialSolicitudesResponseDTO> obtenerHistorialPorSolicitud(Long idSolicitud) {
         List<HistorialSolicitud> historialList = historialRepository.findBySolicitudIdSolicitud(idSolicitud);
-        return mapper.aResponseList(historialList);
+        return historialMapper.aResponseList(historialList);
     }
 }
