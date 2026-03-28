@@ -20,13 +20,27 @@ class SecurityConfig {
         http
                 .csrf { it.disable() }
                 .authorizeHttpRequests {
-                    it.requestMatchers("/auth/**").permitAll()
+                    it
+                    // Endpoints públicos
+                            .requestMatchers("/auth/**").permitAll()
+
+                    // Restricciones por rol
+                            .requestMatchers("/solicitudes/clasificar/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/priorizar/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/cerrar/**").hasRole("ADMINISTRATIVO")
+
+                    // Estudiantes y docentes pueden crear solicitudes
+                            .requestMatchers("/solicitudes/nueva/**").hasAnyRole("ESTUDIANTE", "DOCENTE")
+
+                    // Cualquier otra accion requiere autenticación
                             .anyRequest().authenticated()
                 }
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter)
 
         return http.build()
     }
+
+
 
     @Bean
     PasswordEncoder passwordEncoder() {

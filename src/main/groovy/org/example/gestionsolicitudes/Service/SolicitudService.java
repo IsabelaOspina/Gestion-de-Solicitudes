@@ -5,10 +5,12 @@ import lombok.RequiredArgsConstructor;
 import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
 import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
 import org.example.gestionsolicitudes.Dtos.SolicitudResponseDTO;
+import org.example.gestionsolicitudes.Mapper.HistorialSolicitudesMapper;
 import org.example.gestionsolicitudes.Mapper.SolicitudMapper;
 import org.example.gestionsolicitudes.Model.*;
+import org.example.gestionsolicitudes.Repository.HistorialSolicitudesRepository;
 import org.example.gestionsolicitudes.Repository.SolicitudRepository;
-import org.example.gestionsolicitudes.Repository.UsuarioRepository;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,8 +25,14 @@ public class SolicitudService {
 
     private final UsuarioService usuarioService;
 
+    private final HistorialSolicitudesRepository historialRepository;
+
+    private final HistorialSolicitudesMapper historialMapper;
+
+
 
     // RF-01: Registrar solicitud
+    @PreAuthorize("hasAnyRole('ESTUDIANTE','DOCENTE')")
     public SolicitudResponseDTO registrarSolicitud(CrearSolicitudRequestDTO dto, Long idSolicitante) {
         Usuario solicitante = usuarioService.obtenerUsuarioActivo(idSolicitante);
 
@@ -48,6 +56,7 @@ public class SolicitudService {
     }
 
     // RF-03: Priorización
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public SolicitudResponseDTO priorizarSolicitud(Long idSolicitud, PrioridadSolicitudRequestDTO dto) {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
@@ -58,6 +67,7 @@ public class SolicitudService {
     }
 
     // RF-05: Asignación de responsable
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public SolicitudResponseDTO asignarResponsable(Long idSolicitud, Long idResponsable) {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
@@ -75,18 +85,24 @@ public class SolicitudService {
         solicitud.setResponsableAsignado(responsable);
         solicitud.setEstadoSolicitud(EstadoSolicitud.EN_ATENCION);
 
-        HistorialSolicitud historial = HistorialSolicitud.builder()
-                .fechaHora(LocalDateTime.now())
-                .accionRealizada("Asignación de responsable")
-                .observaciones("Asignado a " + responsable.getNombreUsuario())
-                .solicitud(solicitud)
-                .build();
+        // Registrar historial
+        HistorialSolicitud historial = new HistorialSolicitud();
+        historial.setFechaHora(LocalDateTime.now());
+        historial.setAccionRealizada("Asignación de responsable");
+        historial.setObservaciones("Asignado a " + responsable.getNombreUsuario());
+        historial.setSolicitud(solicitud);
+
         solicitud.getHistorial().add(historial);
 
-        return SolicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
+        // Guardar cambios
+        solicitudRepository.save(solicitud);
+        historialRepository.save(historial);
+
+        return SolicitudMapper.aResponseDTO(solicitud);
 
     }
     // RF-07: Consultas simples (estado, tipo, prioridad, responsable)
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public List<SolicitudResponseDTO> consultarPorEstado(EstadoSolicitud estado) {
         return solicitudRepository.findByEstadoSolicitud(estado)
                 .stream()
@@ -94,6 +110,7 @@ public class SolicitudService {
                 .toList();
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public List<SolicitudResponseDTO> consultarPorTipo(TipoSolicitud tipo) {
         return solicitudRepository.findByTipoSolicitud(tipo)
                 .stream()
@@ -101,6 +118,7 @@ public class SolicitudService {
                 .toList();
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public List<SolicitudResponseDTO> consultarPorPrioridad(NivelPrioridad prioridad) {
         return solicitudRepository.findByNivelPrioridad(prioridad)
                 .stream()
@@ -108,6 +126,7 @@ public class SolicitudService {
                 .toList();
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public List<SolicitudResponseDTO> consultarPorResponsable(Usuario responsable) {
         return solicitudRepository.findByResponsableAsignado(responsable)
                 .stream()
@@ -115,6 +134,7 @@ public class SolicitudService {
                 .toList();
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public List<SolicitudResponseDTO> consultarPorRangoFechas(LocalDateTime desde, LocalDateTime hasta) {
         return solicitudRepository.findByFechaHoraRegistroBetween(desde, hasta)
                 .stream()
@@ -122,6 +142,7 @@ public class SolicitudService {
                 .toList();
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public List<SolicitudResponseDTO> consultarPorEstadoYTipo(EstadoSolicitud estado, TipoSolicitud tipo) {
         return solicitudRepository.findByEstadoSolicitudAndTipoSolicitud(estado, tipo)
                 .stream()
@@ -129,6 +150,7 @@ public class SolicitudService {
                 .toList();
     }
 
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public List<SolicitudResponseDTO> consultarPorSolicitante(Usuario solicitante) {
         return solicitudRepository.findBySolicitante(solicitante)
                 .stream()
@@ -138,6 +160,7 @@ public class SolicitudService {
 
 
     // RF-08: Cierre de solicitud
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public SolicitudResponseDTO cerrarSolicitud(Long idSolicitud, String observacionCierre) {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));

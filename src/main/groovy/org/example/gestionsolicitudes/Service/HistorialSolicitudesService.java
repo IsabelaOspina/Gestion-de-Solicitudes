@@ -4,10 +4,10 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.gestionsolicitudes.Dtos.HistorialSolicitudesRequestDTO;
 import org.example.gestionsolicitudes.Dtos.HistorialSolicitudesResponseDTO;
-import org.example.gestionsolicitudes.Mapper.HistorialSolicitudMapper;
+import org.example.gestionsolicitudes.Mapper.HistorialSolicitudesMapper;
 import org.example.gestionsolicitudes.Model.HistorialSolicitud;
 import org.example.gestionsolicitudes.Model.Solicitud;
-import org.example.gestionsolicitudes.Repository.HistorialSolicitudRepository;
+import org.example.gestionsolicitudes.Repository.HistorialSolicitudesRepository;
 import org.example.gestionsolicitudes.Repository.SolicitudRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +16,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 
-public class HistorialSolicitudService {
+public class HistorialSolicitudesService {
 
-    private final HistorialSolicitudRepository historialRepository;
+    private final HistorialSolicitudesRepository historialRepository;
 
     private final SolicitudRepository solicitudRepository;
 
-    private final HistorialSolicitudMapper mapper;
+    private final HistorialSolicitudesMapper mapper;
 
     //RF-06
     public HistorialSolicitudesResponseDTO registrarAccion(HistorialSolicitudesRequestDTO dto) {
@@ -39,5 +39,4 @@ public class HistorialSolicitudService {
         List<HistorialSolicitud> historialList = historialRepository.findBySolicitudIdSolicitud(idSolicitud);
         return mapper.aResponseList(historialList);
     }
-
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 @Component
-public class HistorialSolicitudMapper {
+public class HistorialSolicitudesMapper {
 
     public HistorialSolicitud aEntidad(HistorialSolicitudesRequestDTO dto, Solicitud solicitud) {
         HistorialSolicitud historial = new HistorialSolicitud();

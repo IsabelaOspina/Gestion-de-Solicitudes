@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface HistorialSolicitudRepository extends JpaRepository<HistorialSolicitud, Long> {
+public interface HistorialSolicitudesRepository extends JpaRepository<HistorialSolicitud, Long> {
 
     // Buscar historial por idSolicitud
     List<HistorialSolicitud> findBySolicitudIdSolicitud(Long idSolicitud);
