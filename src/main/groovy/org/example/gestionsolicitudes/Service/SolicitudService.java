@@ -18,7 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 
 public class SolicitudService {
+
     private final SolicitudRepository solicitudRepository;
+
     private final UsuarioService usuarioService;
 
 

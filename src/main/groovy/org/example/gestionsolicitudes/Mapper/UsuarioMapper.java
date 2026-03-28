@@ -24,7 +24,7 @@ public class UsuarioMapper {
                 .build();
     }
 
-    public UsuarioResponseDTO aDTO(Usuario usuario) {
+    public UsuarioResponseDTO aResponseDTO(Usuario usuario) {
         if (usuario == null) return null;
 
         UsuarioResponseDTO dto = new UsuarioResponseDTO();
@@ -41,7 +41,7 @@ public class UsuarioMapper {
         if (usuarios == null) return List.of();
 
         return usuarios.stream()
-                .map(this::aDTO)
+                .map(this::aResponseDTO)
                 .collect(Collectors.toList());
     }
 }

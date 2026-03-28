@@ -7,14 +7,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+
 public interface SolicitudRepository extends JpaRepository<Solicitud, Long> {
+
+    // Consultar por ID
+    Optional<Solicitud> findById(Long aLong);
 
     // Consultar por estado
     List<Solicitud> findByEstadoSolicitud(EstadoSolicitud estado);
-
-    boolean ExisteCorreoElectronico(String correoElectronico);
-
-    Optional<Usuario> findByCorreoElectronico(String correoElectronico);
 
     // Consultar por tipo de solicitud
     List<Solicitud> findByTipoSolicitud(TipoSolicitud tipo);

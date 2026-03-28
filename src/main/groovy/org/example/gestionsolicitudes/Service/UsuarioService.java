@@ -35,7 +35,7 @@ public class UsuarioService {
 
         Usuario usuarioGuardado = usuarioRepository.save(usuario);
 
-        return usuarioMapper.aDTO(usuarioGuardado);
+        return usuarioMapper.aResponseDTO(usuarioGuardado);
     }
 
     public Usuario obtenerPorId(Long id) {
@@ -49,10 +49,12 @@ public class UsuarioService {
 
         return usuarioMapper.aDTOLista(usuarios);
     }
+
     public Usuario obtenerPorCorreo(String correo) {
         return usuarioRepository.findByCorreoElectronico(correo)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
+
     public Usuario findByActivoTrue(Long id) {
         Usuario usuario = obtenerPorId(id);
 

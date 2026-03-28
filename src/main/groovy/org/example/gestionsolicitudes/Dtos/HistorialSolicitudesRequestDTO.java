@@ -5,15 +5,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class HistorialSolicitudesResponseDTO {
-    private Long idHistorial;
+public class HistorialSolicitudesRequestDTO {
     private LocalDateTime fechaHora;
     private String accionRealizada;
     private String observaciones;
-
-    //Datos solicitud
     private Long idSolicitud;
-    private String descripcionSolicitud;
-    private Long idResponsable;
-
 }
