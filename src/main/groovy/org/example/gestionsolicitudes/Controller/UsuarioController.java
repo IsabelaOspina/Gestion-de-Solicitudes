@@ -1,6 +1,7 @@
 package org.example.gestionsolicitudes.Controller;
 
 import org.example.gestionsolicitudes.Dtos.CrearUsuarioRequestDTO;
+import org.example.gestionsolicitudes.Dtos.LoginRequestDTO;
 import org.example.gestionsolicitudes.Dtos.UsuarioResponseDTO;
 import org.example.gestionsolicitudes.Model.Rol;
 import org.example.gestionsolicitudes.Model.Usuario;
@@ -8,9 +9,11 @@ import org.example.gestionsolicitudes.Service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/usuarios")
@@ -24,6 +27,23 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponseDTO> crearUsuario(@RequestBody CrearUsuarioRequestDTO dto) {
         UsuarioResponseDTO response = usuarioService.crearUsuario(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
+        try {
+            String token = usuarioService.autenticacion(
+                    loginRequest.getCorreoElectronico(),
+                    loginRequest.getPassword()
+            );
+
+            // Devolvemos el token en la respuesta
+            return ResponseEntity.ok(Map.of("token", token));
+        } catch (BadCredentialsException e) {
+            // Si las credenciales son inválidas
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", e.getMessage()));
+        }
     }
 
     // Obtener usuario por ID

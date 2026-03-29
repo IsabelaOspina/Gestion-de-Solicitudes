@@ -30,7 +30,7 @@ public class SolicitudService {
 
     private final HistorialSolicitudesMapper historialMapper;
 
-
+    private final SolicitudMapper solicitudMapper;
 
     // RF-01: Registrar solicitud
     @PreAuthorize("hasAnyRole('ESTUDIANTE','DOCENTE')")
@@ -41,9 +41,10 @@ public class SolicitudService {
             throw new IllegalStateException("Los administrativos no pueden ser solicitantes");
         }
 
-        Solicitud solicitud = SolicitudMapper.aEntidad(dto, solicitante);
-        solicitud.setFechaHoraRegistro(LocalDateTime.now());
+        // Mapear DTO a entidad
+        Solicitud solicitud = solicitudMapper.aEntidad(dto, solicitante);
 
+        // Historial
         HistorialSolicitud historial = HistorialSolicitud.builder()
                 .fechaHora(LocalDateTime.now())
                 .accionRealizada("Registro de solicitud")
@@ -52,7 +53,8 @@ public class SolicitudService {
                 .build();
         solicitud.getHistorial().add(historial);
 
-        return SolicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
+        // Guardar y devolver DTO
+        return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
 
     }
 
@@ -62,9 +64,9 @@ public class SolicitudService {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
-        SolicitudMapper.actualizarPrioridad(solicitud, dto);
+        solicitudMapper.actualizarPrioridad(solicitud, dto);
 
-        return SolicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
+        return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
     }
 
     // RF-05: Asignación de responsable
@@ -99,7 +101,7 @@ public class SolicitudService {
         solicitudRepository.save(solicitud);
         historialRepository.save(historial);
 
-        return SolicitudMapper.aResponseDTO(solicitud);
+        return solicitudMapper.aResponseDTO(solicitud);
 
     }
     // RF-07: Consultas simples (estado, tipo, prioridad, responsable)
@@ -107,7 +109,7 @@ public class SolicitudService {
     public List<SolicitudResponseDTO> consultarPorEstado(EstadoSolicitud estado) {
         return solicitudRepository.findByEstadoSolicitud(estado)
                 .stream()
-                .map(SolicitudMapper::aResponseDTO)
+                .map(solicitudMapper::aResponseDTO)
                 .toList();
     }
 
@@ -115,7 +117,7 @@ public class SolicitudService {
     public List<SolicitudResponseDTO> consultarPorTipo(TipoSolicitud tipo) {
         return solicitudRepository.findByTipoSolicitud(tipo)
                 .stream()
-                .map(SolicitudMapper::aResponseDTO)
+                .map(solicitudMapper::aResponseDTO)
                 .toList();
     }
 
@@ -123,7 +125,7 @@ public class SolicitudService {
     public List<SolicitudResponseDTO> consultarPorPrioridad(NivelPrioridad prioridad) {
         return solicitudRepository.findByNivelPrioridad(prioridad)
                 .stream()
-                .map(SolicitudMapper::aResponseDTO)
+                .map(solicitudMapper::aResponseDTO)
                 .toList();
     }
 
@@ -131,7 +133,7 @@ public class SolicitudService {
     public List<SolicitudResponseDTO> consultarPorResponsable(Usuario responsable) {
         return solicitudRepository.findByResponsableAsignado(responsable)
                 .stream()
-                .map(SolicitudMapper::aResponseDTO)
+                .map(solicitudMapper::aResponseDTO)
                 .toList();
     }
 
@@ -139,7 +141,7 @@ public class SolicitudService {
     public List<SolicitudResponseDTO> consultarPorRangoFechas(LocalDateTime desde, LocalDateTime hasta) {
         return solicitudRepository.findByFechaHoraRegistroBetween(desde, hasta)
                 .stream()
-                .map(SolicitudMapper::aResponseDTO)
+                .map(solicitudMapper::aResponseDTO)
                 .toList();
     }
 
@@ -147,7 +149,7 @@ public class SolicitudService {
     public List<SolicitudResponseDTO> consultarPorEstadoYTipo(EstadoSolicitud estado, TipoSolicitud tipo) {
         return solicitudRepository.findByEstadoSolicitudAndTipoSolicitud(estado, tipo)
                 .stream()
-                .map(SolicitudMapper::aResponseDTO)
+                .map(solicitudMapper::aResponseDTO)
                 .toList();
     }
 
@@ -155,7 +157,7 @@ public class SolicitudService {
     public List<SolicitudResponseDTO> consultarPorSolicitante(Usuario solicitante) {
         return solicitudRepository.findBySolicitante(solicitante)
                 .stream()
-                .map(SolicitudMapper::aResponseDTO)
+                .map(solicitudMapper::aResponseDTO)
                 .toList();
     }
 
@@ -180,7 +182,7 @@ public class SolicitudService {
                 .build();
         solicitud.getHistorial().add(historial);
 
-        return SolicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
+        return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
     }
 
 

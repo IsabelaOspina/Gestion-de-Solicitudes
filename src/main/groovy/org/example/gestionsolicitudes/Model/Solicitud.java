@@ -42,7 +42,7 @@ public class Solicitud {
     @Column(name="Estado_Solicitud", nullable = false)
     private EstadoSolicitud estadoSolicitud;
 
-    @Column(name = "fecha_limite", nullable = false)
+    @Column(name = "fecha_limite", nullable = true)
     private LocalDateTime fechaLimite;
 
     @PrePersist
@@ -69,16 +69,16 @@ public class Solicitud {
     private Usuario solicitante;
 
     @ManyToOne
-    @JoinColumn(name = "responsable_id", nullable = false)
+    @JoinColumn(name = "responsable_id", nullable = true)
     private Usuario responsableAsignado;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "Nivel_Prioridad", nullable = false)
+    @Column(name = "Nivel_Prioridad", nullable = true)
     private NivelPrioridad nivelPrioridad;
 
     @NotBlank(message = "Se debe justificar la prioridad")
     @Size(max = 250, message = "Máximo 250 caracteres")
-    @Column(name = "Justificacion_prioridad", nullable = false, unique = true,length = 250)
+    @Column(name = "Justificacion_prioridad", nullable = true, unique = true,length = 250)
     private String justificacionPrioridad;
 
     @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)

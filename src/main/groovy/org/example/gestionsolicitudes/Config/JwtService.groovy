@@ -1,34 +1,47 @@
-package org.example.gestionsolicitudes.Config
+package org.example.gestionsolicitudes.config
+
 
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
+import io.jsonwebtoken.security.Keys
 import org.springframework.stereotype.Service
+import java.time.temporal.ChronoUnit
+
+import java.nio.charset.StandardCharsets
+import java.security.Key
 
 @Service
 class JwtService {
 
-    private final String SECRET_KEY = "clave_secreta"
+    private final String secretKey = "miclaveultrasecreta123ultrasecreta123"
 
-    String generarToken(String username, String rol) {
-        Jwts.builder()
-                .setSubject(username)
-                .claim("rol", rol)
+    public String generarToken(String correo, String rol) {
+        return Jwts.builder()
+                .setSubject(correo)
+                .claim("role", rol)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
-                .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
-                .compact()
+                .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
+                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes(StandardCharsets.UTF_8))
+                .compact();
     }
 
-    String extraerUsername(String token) {
-        Jwts.parser()
-                .setSigningKey(SECRET_KEY)
+    public String extraerUsername(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                .build()
                 .parseClaimsJws(token)
-                .body
-                .subject
+                .getBody()
+                .getSubject();
     }
 
-    boolean esValido(String token, String username) {
-        extraerUsername(token) == username
+    public String extraerRol(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
     }
+
 }

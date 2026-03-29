@@ -1,5 +1,6 @@
-package org.example.gestionsolicitudes.Config
+package org.example.gestionsolicitudes.config
 
+import org.example.gestionsolicitudes.config.JwtFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.*
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -22,7 +23,7 @@ class SecurityConfig {
                 .authorizeHttpRequests {
                     it
                     // Endpoints públicos
-                            .requestMatchers("/auth/**").permitAll()
+                            .requestMatchers("/usuarios/**").permitAll()
 
                     // Restricciones por rol
                             .requestMatchers("/solicitudes/clasificar/**").hasRole("ADMINISTRATIVO")
@@ -30,7 +31,7 @@ class SecurityConfig {
                             .requestMatchers("/solicitudes/cerrar/**").hasRole("ADMINISTRATIVO")
 
                     // Estudiantes y docentes pueden crear solicitudes
-                            .requestMatchers("/solicitudes/nueva/**").hasAnyRole("ESTUDIANTE", "DOCENTE")
+                            .requestMatchers("/solicitudes/registrar").hasAnyRole("ESTUDIANTE", "DOCENTE")
 
                     // Cualquier otra accion requiere autenticación
                             .anyRequest().authenticated()

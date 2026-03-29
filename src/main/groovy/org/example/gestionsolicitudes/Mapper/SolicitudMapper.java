@@ -8,10 +8,11 @@ import org.example.gestionsolicitudes.Model.EstadoSolicitud;
 import org.example.gestionsolicitudes.Model.HistorialSolicitud;
 import org.example.gestionsolicitudes.Model.Solicitud;
 import org.example.gestionsolicitudes.Model.Usuario;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 
-@UtilityClass
+@Component
 public class SolicitudMapper {
 
     // Entidad -> ResponseDTO

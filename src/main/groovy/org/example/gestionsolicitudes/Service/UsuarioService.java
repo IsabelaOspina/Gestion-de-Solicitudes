@@ -8,8 +8,10 @@ import org.example.gestionsolicitudes.Model.Rol;
 import org.example.gestionsolicitudes.Model.Usuario;
 import org.example.gestionsolicitudes.Repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.example.gestionsolicitudes.config.JwtService;
 
 import java.util.List;
 
@@ -26,9 +28,12 @@ public class UsuarioService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private JwtService jwtService;
+
     public UsuarioResponseDTO crearUsuario(CrearUsuarioRequestDTO dto) {
 
-        if (usuarioRepository.existeCorreoElectronico(dto.getCorreo())) {
+        if (usuarioRepository.existsByCorreoElectronico(dto.getCorreo())) {
             throw new RuntimeException("El correo ya está registrado");
         }
 
@@ -39,6 +44,18 @@ public class UsuarioService {
 
         return usuarioMapper.aResponseDTO(usuarioGuardado);
     }
+
+    public String autenticacion(String correo, String password) {
+        Usuario usuario = usuarioRepository.findByCorreoElectronico(correo)
+                .orElseThrow(() -> new BadCredentialsException("Credenciales incorrectas"));
+
+        if (!passwordEncoder.matches(password, usuario.getPassword())) {
+            throw new BadCredentialsException("Credenciales incorrectas");
+        }
+
+        return jwtService.generarToken(usuario.getCorreoElectronico(), usuario.getRol().name());
+    }
+
 
     public Usuario obtenerPorId(Long id) {
         return usuarioRepository.findById(id)
