@@ -65,6 +65,7 @@ public class SolicitudService {
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
         solicitudMapper.actualizarPrioridad(solicitud, dto);
+        solicitud.setEstadoSolicitud(EstadoSolicitud.CLASIFICADA);
 
         return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
     }
