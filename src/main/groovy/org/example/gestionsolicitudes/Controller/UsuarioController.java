@@ -48,28 +48,29 @@ public class UsuarioController {
 
     // Obtener usuario por ID
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> obtenerPorId(@PathVariable Long id) {
+    public ResponseEntity<UsuarioResponseDTO> obtenerPorId(@PathVariable("id") Long id) {
         Usuario usuario = usuarioService.obtenerPorId(id);
         return ResponseEntity.ok(usuarioService.getUsuarioMapper().aResponseDTO(usuario));
     }
 
+
     // Obtener usuarios por rol
     @GetMapping("/rol/{rol}")
-    public ResponseEntity<List<UsuarioResponseDTO>> obtenerUsuariosPorRol(@PathVariable Rol rol) {
+    public ResponseEntity<List<UsuarioResponseDTO>> obtenerUsuariosPorRol(@PathVariable("rol") Rol rol) {
         List<UsuarioResponseDTO> usuarios = usuarioService.obtenerUsuariosPorRol(rol);
         return ResponseEntity.ok(usuarios);
     }
 
     // Obtener usuario por correo
     @GetMapping("/correo/{correo}")
-    public ResponseEntity<UsuarioResponseDTO> obtenerPorCorreo(@PathVariable String correo) {
+    public ResponseEntity<UsuarioResponseDTO> obtenerPorCorreo(@PathVariable("correo") String correo) {
         Usuario usuario = usuarioService.obtenerPorCorreo(correo);
         return ResponseEntity.ok(usuarioService.getUsuarioMapper().aResponseDTO(usuario));
     }
 
     // Validar usuario activo
     @GetMapping("/{id}/activo")
-    public ResponseEntity<String> validarUsuarioActivo(@PathVariable Long id) {
+    public ResponseEntity<String> validarUsuarioActivo(@PathVariable("id") Long id) {
         usuarioService.validarUsuarioActivo(id);
         return ResponseEntity.ok("Usuario activo");
     }

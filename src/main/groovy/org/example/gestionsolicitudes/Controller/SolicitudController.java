@@ -19,7 +19,7 @@ public class SolicitudController {
     public SolicitudService solicitudService;
 
     @PostMapping("/registrar/{idSolicitante}")
-    public ResponseEntity<SolicitudResponseDTO> registrarSolicitud(@RequestBody CrearSolicitudRequestDTO dto, @PathVariable Long idSolicitante) {
+    public ResponseEntity<SolicitudResponseDTO> registrarSolicitud(@RequestBody CrearSolicitudRequestDTO dto, @PathVariable("idSolicitante") Long idSolicitante) {
         SolicitudResponseDTO nuevaSolicitud = solicitudService.registrarSolicitud(dto, idSolicitante);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaSolicitud);
     }

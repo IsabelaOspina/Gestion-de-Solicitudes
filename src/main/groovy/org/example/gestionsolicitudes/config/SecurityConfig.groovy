@@ -1,6 +1,4 @@
 package org.example.gestionsolicitudes.config
-
-import org.example.gestionsolicitudes.config.JwtFilter
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.*
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -23,7 +21,7 @@ class SecurityConfig {
                 .authorizeHttpRequests {
                     it
                     // Endpoints públicos
-                            .requestMatchers("/usuarios/**").permitAll()
+                            .requestMatchers("/usuarios/crear", "/usuarios/login").permitAll()
 
                     // Restricciones por rol
                             .requestMatchers("/solicitudes/clasificar/**").hasRole("ADMINISTRATIVO")
@@ -40,8 +38,6 @@ class SecurityConfig {
 
         return http.build()
     }
-
-
 
     @Bean
     PasswordEncoder passwordEncoder() {

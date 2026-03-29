@@ -8,5 +8,4 @@ public class CrearSolicitudRequestDTO {
     private String descripcion;
     private TipoSolicitud tipoSolicitud;
     private CanalOrigen canalOrigen;
-    private Long solicitanteId;
 }
