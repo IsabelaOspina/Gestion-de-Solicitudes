@@ -1,5 +1,6 @@
 package org.example.gestionsolicitudes.Controller;
 
+import lombok.RequiredArgsConstructor;
 import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
 import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
 import org.example.gestionsolicitudes.Dtos.SolicitudResponseDTO;
@@ -14,13 +15,19 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/solicitudes")
+@RequiredArgsConstructor
 public class SolicitudController {
 
-    public SolicitudService solicitudService;
+    private final SolicitudService solicitudService;
 
     @PostMapping("/registrar/{idSolicitante}")
-    public ResponseEntity<SolicitudResponseDTO> registrarSolicitud(@RequestBody CrearSolicitudRequestDTO dto, @PathVariable("idSolicitante") Long idSolicitante) {
-        SolicitudResponseDTO nuevaSolicitud = solicitudService.registrarSolicitud(dto, idSolicitante);
+    public ResponseEntity<SolicitudResponseDTO> registrarSolicitud(
+            @RequestBody CrearSolicitudRequestDTO dto,
+            @PathVariable("idSolicitante") Long idSolicitante) {
+
+        SolicitudResponseDTO nuevaSolicitud =
+                solicitudService.registrarSolicitud(dto, idSolicitante);
+
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaSolicitud);
     }
 

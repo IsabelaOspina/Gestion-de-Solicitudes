@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -81,7 +82,8 @@ public class Solicitud {
     @Column(name = "Justificacion_prioridad", nullable = true, unique = true,length = 250)
     private String justificacionPrioridad;
 
+    @Builder.Default
     @OneToMany(mappedBy = "solicitud", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<HistorialSolicitud> historial;
+    private List<HistorialSolicitud> historial = new ArrayList<>();
 }
 
