@@ -77,7 +77,6 @@ public class Solicitud {
     @Column(name = "Nivel_Prioridad", nullable = true)
     private NivelPrioridad nivelPrioridad;
 
-    @NotBlank(message = "Se debe justificar la prioridad")
     @Size(max = 250, message = "Máximo 250 caracteres")
     @Column(name = "Justificacion_prioridad", nullable = true, unique = true,length = 250)
     private String justificacionPrioridad;

@@ -32,34 +32,34 @@ public class SolicitudController {
     }
 
     @PutMapping("/priorizar/{idSolicitud}")
-    public ResponseEntity<SolicitudResponseDTO> priorizarSolicitud(@PathVariable Long idSolicitud, @RequestBody PrioridadSolicitudRequestDTO dto) {
+    public ResponseEntity<SolicitudResponseDTO> priorizarSolicitud( @PathVariable("idSolicitud") Long idSolicitud, @RequestBody PrioridadSolicitudRequestDTO dto) {
          SolicitudResponseDTO solicitudPriorizada = solicitudService.priorizarSolicitud(idSolicitud, dto);
          return ResponseEntity.ok(solicitudPriorizada);
     }
 
     @PostMapping("/{idSolicitud}/asignar/{idResponsable}")
-    public ResponseEntity<SolicitudResponseDTO> asignarResponsable(@PathVariable Long idSolicitud, @PathVariable Long idResponsable) {
+    public ResponseEntity<SolicitudResponseDTO> asignarResponsable(@PathVariable("idSolicitud") Long idSolicitud, @PathVariable("idResponsable") Long idResponsable) {
         SolicitudResponseDTO solicitudAsignada = solicitudService.asignarResponsable(idSolicitud, idResponsable);
         return ResponseEntity.ok(solicitudAsignada);
     }
 
     @GetMapping("/estado/{estado}")
-    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorEstado(@PathVariable EstadoSolicitud estado) {
+    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorEstado(@PathVariable("estado")EstadoSolicitud estado) {
         return ResponseEntity.ok(solicitudService.consultarPorEstado(estado));
     }
 
     @GetMapping("/tipo/{tipo}")
-    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorTipo(@PathVariable TipoSolicitud tipo) {
+    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorTipo(@PathVariable("tipo") TipoSolicitud tipo) {
         return ResponseEntity.ok(solicitudService.consultarPorTipo(tipo));
     }
 
     @GetMapping("/prioridad/{prioridad}")
-    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorPrioridad(@PathVariable NivelPrioridad prioridad) {
+    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorPrioridad(@PathVariable("prioridad") NivelPrioridad prioridad) {
         return ResponseEntity.ok(solicitudService.consultarPorPrioridad(prioridad));
     }
 
     @GetMapping("/responsable/{idResponsable}")
-    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorResponsable(@PathVariable Long idResponsable) {
+    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorResponsable(@PathVariable("idResponsable") Long idResponsable) {
         Usuario responsable = solicitudService.getUsuarioService().obtenerPorId(idResponsable);
         return ResponseEntity.ok(solicitudService.consultarPorResponsable(responsable));
     }
@@ -79,13 +79,13 @@ public class SolicitudController {
     }
 
     @GetMapping("/solicitante/{idSolicitante}")
-    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorSolicitante(@PathVariable Long idSolicitante) {
+    public ResponseEntity<List<SolicitudResponseDTO>> consultarPorSolicitante(@PathVariable("idSolicitante") Long idSolicitante) {
         Usuario solicitante = solicitudService.getUsuarioService().obtenerPorId(idSolicitante);
         return ResponseEntity.ok(solicitudService.consultarPorSolicitante(solicitante));
     }
 
     @PostMapping("/cerrar/{idSolicitud}")
-    public ResponseEntity<SolicitudResponseDTO> cerrarSolicitud(@PathVariable Long idSolicitud, @RequestBody String observacionCierre) {
+    public ResponseEntity<SolicitudResponseDTO> cerrarSolicitud(@PathVariable("idSolicitud") Long idSolicitud, @RequestBody String observacionCierre) {
         SolicitudResponseDTO solicitudCerrada = solicitudService.cerrarSolicitud(idSolicitud, observacionCierre);
         return ResponseEntity.ok(solicitudCerrada);
     }
