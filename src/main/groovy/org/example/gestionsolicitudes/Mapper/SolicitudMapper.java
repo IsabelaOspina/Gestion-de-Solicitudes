@@ -60,11 +60,7 @@ public class SolicitudMapper {
         solicitud.setNivelPrioridad(dto.getPrioridad());
         solicitud.setJustificacionPrioridad(dto.getJustificacion());
 
-        if (dto.getFechaLimite() != null) {
-            solicitud.setFechaLimite(dto.getFechaLimite());
-        }
-
-        if (dto.getImpacto() != null) {
+        if (dto.getImpacto() != null && !dto.getImpacto().isBlank()) {
             HistorialSolicitud historial = HistorialSolicitud.builder()
                     .fechaHora(LocalDateTime.now())
                     .accionRealizada("Priorización")
@@ -73,7 +69,6 @@ public class SolicitudMapper {
                     .build();
             solicitud.getHistorial().add(historial);
         }
+
     }
-
-
 }

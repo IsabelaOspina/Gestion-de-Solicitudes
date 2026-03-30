@@ -8,6 +8,6 @@ import java.time.LocalDateTime;
 public class PrioridadSolicitudRequestDTO {
     private NivelPrioridad prioridad;
     private String impacto;
-    private LocalDateTime fechaLimite;
     private String justificacion;
+    private Boolean usarIA;
 }
