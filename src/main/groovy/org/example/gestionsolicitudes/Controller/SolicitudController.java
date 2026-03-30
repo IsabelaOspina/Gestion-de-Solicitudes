@@ -3,6 +3,7 @@ package org.example.gestionsolicitudes.Controller;
 import lombok.RequiredArgsConstructor;
 import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
 import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
+import org.example.gestionsolicitudes.Dtos.ResumenSolicitudResponseDTO;
 import org.example.gestionsolicitudes.Dtos.SolicitudResponseDTO;
 import org.example.gestionsolicitudes.Model.*;
 import org.example.gestionsolicitudes.Service.SolicitudService;
@@ -88,6 +89,12 @@ public class SolicitudController {
     public ResponseEntity<SolicitudResponseDTO> cerrarSolicitud(@PathVariable("idSolicitud") Long idSolicitud, @RequestBody String observacionCierre) {
         SolicitudResponseDTO solicitudCerrada = solicitudService.cerrarSolicitud(idSolicitud, observacionCierre);
         return ResponseEntity.ok(solicitudCerrada);
+    }
+
+    @GetMapping("/{idSolicitud}/resumen")
+    public ResponseEntity<ResumenSolicitudResponseDTO> generarResumen(@PathVariable("idSolicitud") Long idSolicitud) {
+        ResumenSolicitudResponseDTO response = solicitudService.generarResumenSolicitud(idSolicitud);
+        return ResponseEntity.ok(response);
     }
 
 }

@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
 import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
+import org.example.gestionsolicitudes.Dtos.ResumenSolicitudResponseDTO;
 import org.example.gestionsolicitudes.Dtos.SolicitudResponseDTO;
 import org.example.gestionsolicitudes.Mapper.HistorialSolicitudesMapper;
 import org.example.gestionsolicitudes.Mapper.SolicitudMapper;
@@ -31,6 +32,8 @@ public class SolicitudService {
     private final HistorialSolicitudesMapper historialMapper;
 
     private final SolicitudMapper solicitudMapper;
+
+    private final IAService iaService;
 
     // RF-01: Registrar solicitud
     @PreAuthorize("hasAnyRole('ESTUDIANTE','DOCENTE')")
@@ -184,6 +187,58 @@ public class SolicitudService {
         solicitud.getHistorial().add(historial);
 
         return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
+    }
+    public String construirPrompt(Solicitud solicitud) {
+
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append("Actúa como un asistente administrativo profesional.\n");
+        prompt.append("Analiza la siguiente solicitud y genera un resumen breve, claro y formal.\n");
+        prompt.append("El resumen debe tener máximo 3 líneas y no debe incluir títulos ni introducciones.\n\n");
+
+        prompt.append("DATOS DE LA SOLICITUD:\n");
+        prompt.append("Descripción: ").append(solicitud.getDescripcion()).append("\n");
+        prompt.append("Estado: ").append(solicitud.getEstadoSolicitud()).append("\n");
+        prompt.append("Tipo: ").append(solicitud.getTipoSolicitud()).append("\n");
+
+        if (solicitud.getResponsableAsignado() != null) {
+            prompt.append("Responsable: ")
+                    .append(solicitud.getResponsableAsignado().getNombreUsuario())
+                    .append("\n");
+        }
+
+        prompt.append("\nHISTORIAL RECIENTE:\n");
+
+        if (solicitud.getHistorial() != null) {
+            solicitud.getHistorial().stream().limit(5).forEach(h -> {
+                prompt.append("- ")
+                        .append(h.getFechaHora())
+                        .append(": ")
+                        .append(h.getAccionRealizada())
+                        .append("\n");
+            });
+        }
+
+        prompt.append("\nResponde SOLO con el resumen final.");
+
+        return prompt.toString();
+    }
+    public ResumenSolicitudResponseDTO generarResumenSolicitud(Long idSolicitud) {
+
+        Solicitud solicitud = solicitudRepository.findById(idSolicitud)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+
+        String prompt = construirPrompt(solicitud);
+
+        String resumen = iaService.generarResumen(prompt);
+
+        // Construir DTO
+        ResumenSolicitudResponseDTO response = new ResumenSolicitudResponseDTO();
+        response.setIdSolicitud(solicitud.getIdSolicitud());
+        response.setEstadoSolicitud(solicitud.getEstadoSolicitud());
+        response.setResumenGenerado(resumen);
+
+        return response;
     }
 
 
