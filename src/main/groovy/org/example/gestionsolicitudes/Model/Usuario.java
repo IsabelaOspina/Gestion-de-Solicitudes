@@ -53,6 +53,4 @@ public class Usuario {
             activo = true; // Por defecto, el usuario estará activo al ser creado
         }
     }
-
-
 }
