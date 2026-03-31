@@ -67,7 +67,41 @@ public class SolicitudService {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
-        solicitudMapper.actualizarPrioridad(solicitud, dto);
+        if (Boolean.TRUE.equals(dto.getUsarIA())) {
+
+            String respuestaIA = iaService.sugerirPrioridad(
+                    solicitud.getDescripcion(),
+                    solicitud.getTipoSolicitud(),
+                    solicitud.getCanalOrigen()
+            );
+
+            System.out.println("RESPUESTA COMPLETA DE LA IA:");
+            System.out.println(respuestaIA);
+
+            if (respuestaIA.contains("ALTA")) {
+                solicitud.setNivelPrioridad(NivelPrioridad.ALTA);
+            }
+            else if (respuestaIA.contains("MEDIA")) {
+                solicitud.setNivelPrioridad(NivelPrioridad.MEDIA);
+            }
+            else {
+                solicitud.setNivelPrioridad(NivelPrioridad.BAJA);
+            }
+
+            if (respuestaIA.contains("JUSTIFICACION:")) {
+
+                String justificacion = respuestaIA.split("JUSTIFICACION:")[1].trim();
+
+                solicitud.setJustificacionPrioridad(justificacion);
+            }
+
+        } else {
+
+            solicitudMapper.actualizarPrioridad(solicitud, dto);
+        }
+
+        solicitud.asignarFechaRegistroYLimite();
+
         solicitud.setEstadoSolicitud(EstadoSolicitud.CLASIFICADA);
 
         return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
