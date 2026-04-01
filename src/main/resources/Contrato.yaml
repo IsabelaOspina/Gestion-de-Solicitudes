@@ -5,66 +5,85 @@ info:
   description: API REST para gestionar solicitudes académicas, usuarios, historial y funcionalidades de IA.
 
 servers:
-  - url: http://localhost:8080/api
+  - url: http://localhost:8080/
 
 paths:
-
-# ==================== AUTENTICACIÓN ====================
-
-  /auth/login:
-    post:
-      summary: Autenticación de usuario
-      operationId: login
-      requestBody:
-        required: true
-        content:5
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
+  /url:
+    get:
+      description: New endpoint
       responses:
-        '200':
-          description: Token generado
+        200:
+          description: New response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/LoginResponse'
-        '401':
-          description: Credenciales inválidas
+                type: string
 
 # ==================== USUARIOS ====================
 
-  /usuarios:
+  /usuarios/crear:
     post:
       summary: Crear usuario
-      security:
-        - bearerAuth: []
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CrearUsuarioDTO'
+              $ref: '#/components/schemas/CrearUsuarioRequestDTO'
       responses:
         '201':
           description: Usuario creado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UsuarioDTO'
+                $ref: '#/components/schemas/UsuarioResponseDTO'
 
+  /usuarios/login:
+    post:
+      summary: Autenticación de usuario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestDTO'
+      responses:
+        '200':
+          description: Token generado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponseDTO'
+        '401':
+          description: Credenciales inválidas
+
+  /usuarios/{id}:
     get:
-      summary: Listar usuarios
-      security:
-        - bearerAuth: []
+      summary: Obtener usuario por ID
       parameters:
-        - in: query
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponseDTO'
+
+  /usuarios/rol/{rol}:
+    get:
+      summary: Obtener usuarios por rol
+      parameters:
+        - in: path
           name: rol
+          required: true
           schema:
             $ref: '#/components/schemas/Rol'
-        - in: query
-          name: activo
-          schema:
-            type: boolean
       responses:
         '200':
           description: Lista de usuarios
@@ -73,103 +92,125 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UsuarioDTO'
+                  $ref: '#/components/schemas/UsuarioResponseDTO'
 
-  /usuarios/{id}/validar-activo:
+  /usuarios/correo/{correo}:
     get:
-      summary: Validar si usuario está activo
-      security:
-        - bearerAuth: []
+      summary: Obtener usuario por correo
       parameters:
         - in: path
-          name: id
+          name: correo
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: Usuario activo
+          description: Usuario encontrado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UsuarioResponseDTO'
+
+  /usuarios/{id}/activo:
+    get:
+      summary: Validar si usuario está activo
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+           description: Usuario activo
         '409':
-          description: Usuario inactivo
+           description: Usuario inactivo
 
-# ==================== SOLICITUDES ====================
 
-  /solicitudes:
+  # ==================== SOLICITUDES ====================
+
+  /solicitudes/registrar/{idSolicitante}:
     post:
-      summary: Registrar solicitud académica
-      description: Registra una solicitud académica asociada a un usuario activo.
-      security:
-        - bearerAuth: []
+      summary: Registrar solicitud
+      parameters:
+        - in: path
+          name: idSolicitante
+          required: true
+          schema:
+            type: integer
+            format: int64
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CrearSolicitudDTO'
+              $ref: '#/components/schemas/CrearSolicitudRequestDTO'
       responses:
         '201':
-          description: Solicitud creada correctamente
+          description: Solicitud registrada
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SolicitudDTO'
+                $ref: '#/components/schemas/SolicitudResponseDTO'
 
-        '400':
-          description: Datos inválidos en la solicitud
-
-        '404':
-          description: Usuario solicitante no encontrado
-
-        '409':
-          description: El usuario solicitante está inactivo y no puede registrar solicitudes
-
-    get:
-      summary: Consultar solicitudes
-      security:
-        - bearerAuth: [ ]
+  /solicitudes/priorizar/{idSolicitud}:
+    put:
+      summary: Asignar prioridad a solicitud
       parameters:
-        - in: query
-          name: estadoSolicitud
+        - in: path
+          name: idSolicitud
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PrioridadSolicitudRequestDTO'
+      responses:
+        '200':
+          description: Solicitud priorizada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudResponseDTO'
+
+  /solicitudes/{idSolicitud}/asignar/{idResponsable}:
+    post:
+      summary: Asignar responsable a solicitud
+      parameters:
+        - in: path
+          name: idSolicitud
+          required: true
+          schema:
+            type: integer
+            format: int64
+        - in: path
+          name: idResponsable
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Responsable asignado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudResponseDTO'
+
+  /solicitudes/estado/{estado}:
+    get:
+      summary: Consultar solicitudes por estado
+      parameters:
+        - in: path
+          name: estado
+          required: true
           schema:
             $ref: '#/components/schemas/EstadoSolicitud'
-
-        - in: query
-          name: tipoSolicitud
-          schema:
-            $ref: '#/components/schemas/TipoSolicitud'
-
-        - in: query
-          name: prioridad
-          schema:
-            type: string
-
-        - in: query
-          name: responsable
-          schema:
-            type: string
-
-        - in: query
-          name: fechaDesde
-          schema:
-            type: string
-            format: date
-
-        - in: query
-          name: fechaHasta
-          schema:
-            type: string
-            format: date
-
-        - in: query
-          name: page
-          schema:
-            type: integer
-
-        - in: query
-          name: size
-          schema:
-            type: integer
-
       responses:
         '200':
           description: Lista de solicitudes
@@ -178,315 +219,216 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/SolicitudDTO'
+                  $ref: '#/components/schemas/SolicitudResponseDTO'
 
-  /solicitudes/{id}:
+  /solicitudes/tipo/{tipo}:
     get:
-      summary: Obtener solicitud por ID
-      security:
-        - bearerAuth: []
+      summary: Consultar solicitudes por tipo
       parameters:
         - in: path
-          name: id
+          name: tipo
           required: true
           schema:
-            type: string
+            $ref: '#/components/schemas/TipoSolicitud'
       responses:
         '200':
-          description: Solicitud encontrada
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/SolicitudDTO'
-
-# ==================== CLASIFICACIÓN ====================
-
-  /solicitudes/{id}/clasificar:
-    put:
-      summary: Clasificar solicitud
-      description: Permite clasificar una solicitud académica existente asignándole un tipo de solicitud.
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: Identificador de la solicitud a clasificar
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ClasificacionDTO'
-      responses:
-        '200':
-          description: Clasificación aplicada correctamente
-        '400':
-          description: Datos de clasificación inválidos
-        '404':
-          description: Solicitud no encontrada
-        '409':
-          description: La solicitud no se encuentra en un estado válido para ser clasificada
-
-# ==================== PRIORIZACIÓN ====================
-
-  /solicitudes/{id}/priorizar:
-    put:
-      summary: Asignar prioridad a una solicitud
-      description: Permite asignar una prioridad a una solicitud previamente clasificada considerando impacto académico y fecha límite.
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-          description: Identificador de la solicitud
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PrioridadSolicitudDTO'
-      responses:
-        '200':
-          description: Prioridad asignada correctamente
-        '400':
-          description: Datos inválidos
-        '404':
-          description: Solicitud no encontrada
-        '409':
-          description: La solicitud debe estar clasificada antes de poder priorizarse
-
-# ==================== RESPONSABLE ====================
-
-  /solicitudes/{id}/responsable:
-    put:
-      summary: Asignar responsable
-      description: Permite asignar un responsable activo a una solicitud y registrar la acción en el historial.
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/ResponsableDTO'
-      responses:
-        '200':
-          description: Responsable asignado correctamente
-        '404':
-          description: Solicitud o usuario responsable no encontrado
-        '409':
-          description: El responsable se encuentra inactivo
-
-# ==================== CICLO DE VIDA ====================
-
-  /solicitudes/{id}/estado:
-    put:
-      summary: Cambiar estado de solicitud
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CambioEstadoDTO'
-      responses:
-        '200':
-          description: Estado actualizado
-        '409':
-          description: Transición inválida
-
-  /solicitudes/{id}/estado/validar:
-    post:
-      summary: Validar transición de estado
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CambioEstadoDTO'
-      responses:
-        '200':
-          description: Transición válida
-        '409':
-          description: Transición inválida
-
-# ==================== HISTORIAL ====================
-
-  /solicitudes/{id}/historial:
-    get:
-      summary: Consultar historial
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Historial de la solicitud
+          description: Lista de solicitudes
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/HistorialSolicitudDTO'
+                  $ref: '#/components/schemas/SolicitudResponseDTO'
 
+  /solicitudes/prioridad/{prioridad}:
+    get:
+      summary: Consultar solicitudes por prioridad
+      parameters:
+        - in: path
+          name: prioridad
+          required: true
+          schema:
+            $ref: '#/components/schemas/NivelPrioridad'
+      responses:
+        '200':
+          description: Lista de solicitudes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudResponseDTO'
+
+  /solicitudes/responsable/{idResponsable}:
+    get:
+      summary: Consultar solicitudes por responsable
+      parameters:
+        - in: path
+          name: idResponsable
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Lista de solicitudes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudResponseDTO'
+
+  /solicitudes/rango:
+    get:
+      summary: Consultar solicitudes por rango de fechas
+      parameters:
+        - in: query
+          name: desde
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: hasta
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Lista de solicitudes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudResponseDTO'
+
+  /solicitudes/estado-tipo:
+    get:
+      summary: Consultar solicitudes por estado y tipo
+      parameters:
+        - in: query
+          name: estado
+          required: true
+          schema:
+            $ref: '#/components/schemas/EstadoSolicitud'
+        - in: query
+          name: tipo
+          required: true
+          schema:
+            $ref: '#/components/schemas/TipoSolicitud'
+      responses:
+        '200':
+          description: Lista de solicitudes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudResponseDTO'
+
+  /solicitudes/solicitante/{idSolicitante}:
+    get:
+      summary: Consultar solicitudes por solicitante
+      parameters:
+        - in: path
+          name: idSolicitante
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Lista de solicitudes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SolicitudResponseDTO'
+
+  /solicitudes/cerrar/{idSolicitud}:
     post:
-      summary: Registrar acción en historial
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RegistroHistorialDTO'
-      responses:
-        '201':
-          description: Acción registrada
-
-# ==================== CIERRE ====================
-
-  /solicitudes/{id}/validar-cierre:
-    get:
-      summary: Validar si solicitud puede cerrarse
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Puede cerrarse
-        '409':
-          description: Aún no puede cerrarse
-
-  /solicitudes/{id}/cerrar:
-    put:
       summary: Cerrar solicitud
-      description: Permite cerrar una solicitud que se encuentre en estado Atendida registrando una observación de cierre.
-      security:
-        - bearerAuth: []
       parameters:
         - in: path
-          name: id
+          name: idSolicitud
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       requestBody:
         required: true
         content:
-          application/json:
+          text/plain:
             schema:
-              $ref: '#/components/schemas/CierreDTO'
+              type: string
       responses:
         '200':
-          description: Solicitud cerrada correctamente
-        '404':
-          description: Solicitud no encontrada
-        '409':
-          description: La solicitud debe estar en estado Atendida para poder cerrarse o ya se encuentra cerrada
+          description: Solicitud cerrada
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SolicitudResponseDTO'
 
-# ==================== IA ====================
-
-  /solicitudes/{id}/resumen:
+  /solicitudes/{idSolicitud}/resumen:
     get:
-      summary: Generar resumen con IA
-      security:
-        - bearerAuth: []
+      summary: Generar resumen de solicitud
       parameters:
         - in: path
-          name: id
+          name: idSolicitud
           required: true
           schema:
-            type: string
+            type: integer
+            format: int64
       responses:
         '200':
           description: Resumen generado
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ResumenSolicitudDTO'
-        '503':
-          description: Servicio IA no disponible
+                $ref: '#/components/schemas/ResumenSolicitudResponseDTO'
 
-  /solicitudes/sugerir-clasificacion:
+  # ==================== HISTORIAL SOLICITUDES ====================
+
+  /historial-solicitudes/registrar-accion:
     post:
-      summary: Sugerir clasificación automática
-      security:
-        - bearerAuth: []
+      summary: Registrar acción en el historial de una solicitud
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/SugerenciaClasificacionRequestDTO'
+              $ref: '#/components/schemas/HistorialSolicitudesRequestDTO'
       responses:
-        '200':
-          description: Sugerencia generada
+        '201':
+          description: Acción registrada en el historial
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SugerenciaClasificacionResponseDTO'
+                $ref: '#/components/schemas/HistorialSolicitudesResponseDTO'
 
-  /solicitudes/{id}/confirmar-clasificacion:
-    put:
-      summary: Confirmar clasificación sugerida por IA
-      security:
-        - bearerAuth: []
-      parameters:
-        - in: path
-          name: id
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
+    /historial-solicitudes/solicitud/{idSolicitud}:
+      get:
+        summary: Obtener historial de una solicitud
+        parameters:
+          - in: path
+            name: idSolicitud
+            required: true
             schema:
-              $ref: '#/components/schemas/ConfirmacionClasificacionDTO'
-      responses:
-        '200':
-          description: Clasificación confirmada
+              type: integer
+              format: int64
+        responses:
+          '200':
+            description: Lista de acciones del historial de la solicitud
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/HistorialSolicitudesResponseDTO'
 
 components:
 
@@ -498,21 +440,21 @@ components:
 
   schemas:
 
-    LoginRequest:
+    LoginRequestDTO:
       type: object
       properties:
-        username:
+        correoElectronico:
           type: string
         password:
           type: string
 
-    LoginResponse:
+    LoginResponseDTO:
       type: object
       properties:
         token:
           type: string
 
-    UsuarioDTO:
+    UsuarioResponseDTO:
       type: object
       properties:
         idUsuario:
@@ -526,7 +468,7 @@ components:
         activo:
           type: boolean
 
-    CrearUsuarioDTO:
+    CrearUsuarioRequestDTO:
       type: object
       properties:
         nombre:
@@ -545,7 +487,7 @@ components:
         - Docente
         - Administrativo
 
-    CrearSolicitudDTO:
+    CrearSolicitudRequestDTO:
       type: object
       properties:
         descripcion:
@@ -554,21 +496,63 @@ components:
           $ref: '#/components/schemas/TipoSolicitud'
         canalOrigen:
           type: string
-        solicitanteId:
-          type: string
 
-    SolicitudDTO:
+
+    SolicitudResponseDTO:
       type: object
       properties:
         idSolicitud:
-          type: string
+          type: integer
+          format: int64
+          description: Identificador de la solicitud
+
         descripcion:
           type: string
+          description: Descripción de la solicitud académica
+
         fechaHoraRegistro:
           type: string
           format: date-time
+          description: Fecha y hora en que se registró la solicitud
+
+        canalOrigen:
+          $ref: '#/components/schemas/CanalOrigen'
+
+        tipoSolicitud:
+          $ref: '#/components/schemas/TipoSolicitud'
+
         estadoSolicitud:
           $ref: '#/components/schemas/EstadoSolicitud'
+
+        fechaLimite:
+          type: string
+          format: date-time
+          description: Fecha límite para atender la solicitud
+
+        nivelPrioridad:
+          $ref: '#/components/schemas/NivelPrioridad'
+
+        justificacionPrioridad:
+          type: string
+          description: Justificación de la prioridad asignada
+
+        solicitanteId:
+          type: integer
+          format: int64
+          description: ID del usuario que realizó la solicitud
+
+        nombreSolicitante:
+          type: string
+          description: Nombre del solicitante
+
+        responsableAsignadoId:
+          type: integer
+          format: int64
+          description: ID del usuario responsable asignado
+
+        nombreResponsable:
+          type: string
+          description: Nombre del responsable asignado
 
     ClasificacionDTO:
       type: object
@@ -585,7 +569,7 @@ components:
         - justificacion
       properties:
         prioridad:
-          $ref: '#/components/schemas/Prioridad'
+          $ref: '#/components/schemas/NivelPrioridad'
         impacto:
           type: string
           description: Impacto académico generado por la solicitud
@@ -597,18 +581,19 @@ components:
           type: string
           description: Justificación de la prioridad asignada
 
-    Prioridad:
+    NivelPrioridad:
       type: string
       enum:
         - Baja
         - Media
         - Alta
 
-    ResponsableDTO:
-      type: object
-      properties:
-        usuarioId:
-          type: string
+    CanalOrigen:
+      type: string
+      enum:
+        - CSU
+        - Correo electronico
+        - SAC
 
     CambioEstadoDTO:
       type: object
@@ -628,7 +613,7 @@ components:
         usuarioId:
           type: string
 
-    HistorialSolicitudDTO:
+    HistorialSolicitudesRequestDTO:
       type: object
       properties:
         fechaHora:
@@ -638,12 +623,41 @@ components:
         accionRealizada:
           type: string
           description: Acción ejecutada sobre la solicitud
-        usuarioId:
-          type: string
-          description: Identificador del usuario responsable de la acción
         observaciones:
           type: string
           description: Comentarios u observaciones asociadas a la acción
+        usuarioId:
+          type: string
+          description: Identificador del usuario responsable de la acción
+
+    HistorialSolicitudesResponseDTO:
+      type: object
+      properties:
+        idHistorial:
+          type: integer
+          format: int64
+          description: Identificador del registro de historial
+        fechaHora:
+          type: string
+          format: date-time
+          description: Fecha y hora en que se registró la acción
+        accionRealizada:
+          type: string
+          description: Acción realizada sobre la solicitud
+        observaciones:
+          type: string
+          description: Comentarios asociados a la acción
+        idSolicitud:
+          type: integer
+          format: int64
+          description: Identificador de la solicitud
+        descripcionSolicitud:
+          type: string
+          description: Descripción de la solicitud asociada
+        idResponsable:
+          type: integer
+          format: int64
+          description: Identificador del usuario responsable
 
     CierreDTO:
       type: object
@@ -672,30 +686,53 @@ components:
         - Atendida
         - Cerrada
 
-    ResumenSolicitudDTO:
+    ResumenSolicitudRequestDTO:
       type: object
       properties:
+        idSolicitud:
+          type: integer
+          format: int64
+          description: Identificador de la solicitud
+
+        estadoSolicitud:
+          $ref: '#/components/schemas/EstadoSolicitud'
+
         resumenGenerado:
           type: string
+          description: Resumen generado automáticamente sobre la solicitud
 
-    SugerenciaClasificacionRequestDTO:
+
+    PrioridadSolicitudRequestDTO:
       type: object
       properties:
-        descripcion:
-          type: string
-
-    SugerenciaClasificacionResponseDTO:
-      type: object
-      properties:
-        tipoSolicitudSugerido:
-          $ref: '#/components/schemas/TipoSolicitud'
-        prioridadSugerida:
-          $ref: '#/components/schemas/Prioridad'
-
-    ConfirmacionClasificacionDTO:
-      type: object
-      properties:
-        tipoSolicitud:
-          $ref: '#/components/schemas/TipoSolicitud'
         prioridad:
+          $ref: '#/components/schemas/NivelPrioridad'
+          description: Nivel de prioridad asignado a la solicitud
+
+        impacto:
           type: string
+          description: Impacto académico generado por la solicitud
+
+        justificacion:
+          type: string
+          description: Justificación de la prioridad asignada
+
+        usarIA:
+          type: boolean
+          description: Indica si se debe usar inteligencia artificial para apoyar la priorización
+
+    ResumenSolicitudResponseDTO:
+      type: object
+      properties:
+        idSolicitud:
+          type: integer
+          format: int64
+          description: Identificador de la solicitud
+
+        estadoSolicitud:
+          $ref: '#/components/schemas/EstadoSolicitud'
+          description: Estado actual de la solicitud
+
+        resumenGenerado:
+          type: string
+          description: Resumen generado automáticamente de la solicitud
