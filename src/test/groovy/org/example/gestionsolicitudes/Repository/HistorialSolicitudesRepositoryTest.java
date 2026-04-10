@@ -1,53 +1,53 @@
 package org.example.gestionsolicitudes.Repository;
+
 import org.example.gestionsolicitudes.Model.*;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
+@ActiveProfiles("test")
+@DisplayName("HistorialSolicitudesRepository — Tests de persistencia")
 class HistorialSolicitudesRepositoryTest {
 
-    @Autowired
-    private HistorialSolicitudesRepository historialRepository;
+    @Autowired private HistorialSolicitudesRepository historialRepository;
+    @Autowired private SolicitudRepository solicitudRepository;
+    @Autowired private UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private SolicitudRepository solicitudRepository;
+    private Usuario usuario;
+    private Solicitud solicitud;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
+    @BeforeEach
+    void setUp() {
+        usuario = Usuario.builder()
+                .nombreUsuario("Usuario Test")
+                .correoElectronico("test@correo.com")
+                .password("123456")
+                .rol(Rol.ESTUDIANTE)
+                .activo(true)
+                .build();
 
-    private Usuario crearUsuario(String correo) {
-        return usuarioRepository.save(
-                Usuario.builder()
-                        .nombreUsuario("Usuario Test")
-                        .correoElectronico(correo)
-                        .password("123456")
-                        .rol(Rol.ESTUDIANTE)
-                        .activo(true)
-                        .build()
-        );
+        usuario = usuarioRepository.save(usuario);
+
+        solicitud = Solicitud.builder()
+                .descripcion("Solicitud test")
+                .canalOrigen(CanalOrigen.CORREO_ELECTRONICO)
+                .tipoSolicitud(TipoSolicitud.CONSULTA_ACADEMICA)
+                .estadoSolicitud(EstadoSolicitud.REGISTRADA)
+                .nivelPrioridad(NivelPrioridad.MEDIA)
+                .solicitante(usuario)
+                .build();
+
+        solicitud = solicitudRepository.save(solicitud);
     }
 
-    private Solicitud crearSolicitud(Usuario usuario) {
-        return solicitudRepository.save(
-                Solicitud.builder()
-                        .descripcion("Solicitud test")
-                        .canalOrigen(CanalOrigen.CORREO_ELECTRONICO)
-                        .tipoSolicitud(TipoSolicitud.CONSULTA_ACADEMICA)
-                        .estadoSolicitud(EstadoSolicitud.REGISTRADA)
-                        .nivelPrioridad(NivelPrioridad.MEDIA)
-                        .solicitante(usuario)
-                        .build()
-        );
-    }
-
-    private HistorialSolicitud crearHistorial(Solicitud solicitud, String accion) {
+    private HistorialSolicitud crearHistorial(String accion) {
         return historialRepository.save(
                 HistorialSolicitud.builder()
                         .solicitud(solicitud)
@@ -58,40 +58,48 @@ class HistorialSolicitudesRepositoryTest {
         );
     }
 
-    @Test
-    @DisplayName("Debe guardar historial correctamente")
-    void guardarHistorialTest() {
-        Usuario usuario = crearUsuario("hist1@correo.com");
-        Solicitud solicitud = crearSolicitud(usuario);
+    @Nested
+    @DisplayName("CRUD básico")
+    class CrudTests {
 
-        HistorialSolicitud historial = crearHistorial(solicitud, "CREADA");
+        @Test
+        @DisplayName("Guardar historial correctamente")
+        void guardarHistorial() {
+            HistorialSolicitud historial = crearHistorial("CREADA");
 
-        assertNotNull(historial.getIdHistorial());
-        assertEquals("CREADA", historial.getAccionRealizada());
-        assertEquals(solicitud.getIdSolicitud(), historial.getSolicitud().getIdSolicitud());
+            assertThat(historial.getIdHistorial()).isNotNull();
+            assertThat(historial.getAccionRealizada()).isEqualTo("CREADA");
+            assertThat(historial.getSolicitud().getIdSolicitud())
+                    .isEqualTo(solicitud.getIdSolicitud());
+        }
     }
 
-    @Test
-    @DisplayName("Debe encontrar historial por id de solicitud")
-    void findBySolicitudIdSolicitudTest() {
-        Usuario usuario = crearUsuario("hist2@correo.com");
-        Solicitud solicitud = crearSolicitud(usuario);
+    @Nested
+    @DisplayName("Consultas personalizadas")
+    class QueryTests {
 
-        crearHistorial(solicitud, "CREADA");
-        crearHistorial(solicitud, "ACTUALIZADA");
+        @Test
+        @DisplayName("findBySolicitudIdSolicitud retorna historial asociado")
+        void findBySolicitudIdSolicitud() {
+            crearHistorial("CREADA");
+            crearHistorial("ACTUALIZADA");
 
-        List<HistorialSolicitud> resultados =
-                historialRepository.findBySolicitudIdSolicitud(solicitud.getIdSolicitud());
+            List<HistorialSolicitud> resultados =
+                    historialRepository.findBySolicitudIdSolicitud(solicitud.getIdSolicitud());
 
-        assertEquals(2, resultados.size());
-    }
+            assertThat(resultados).hasSize(2);
+            assertThat(resultados)
+                    .extracting(HistorialSolicitud::getAccionRealizada)
+                    .containsExactlyInAnyOrder("CREADA", "ACTUALIZADA");
+        }
 
-    @Test
-    @DisplayName("Debe retornar lista vacía si no hay historial para la solicitud")
-    void findBySolicitudIdSolicitudVacioTest() {
-        List<HistorialSolicitud> resultados =
-                historialRepository.findBySolicitudIdSolicitud(999L);
+        @Test
+        @DisplayName("findBySolicitudIdSolicitud retorna vacío si no existe")
+        void findBySolicitudIdSolicitudVacio() {
+            List<HistorialSolicitud> resultados =
+                    historialRepository.findBySolicitudIdSolicitud(999L);
 
-        assertTrue(resultados.isEmpty());
+            assertThat(resultados).isEmpty();
+        }
     }
 }
