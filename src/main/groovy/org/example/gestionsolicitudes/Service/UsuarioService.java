@@ -84,6 +84,16 @@ public class UsuarioService {
         return usuario;
     }
 
+    public UsuarioResponseDTO obtenerUsuarioDTO(Long id) {
+        Usuario usuario = obtenerPorId(id);
+        return usuarioMapper.aResponseDTO(usuario);
+    }
+
+    public UsuarioResponseDTO obtenerUsuarioPorCorreoDTO(String correo) {
+        Usuario usuario = obtenerPorCorreo(correo);
+        return usuarioMapper.aResponseDTO(usuario);
+    }
+
 
     public void validarUsuarioActivo(Long id) {
         Usuario usuario = obtenerPorId(id);

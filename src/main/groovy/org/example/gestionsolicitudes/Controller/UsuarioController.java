@@ -49,8 +49,8 @@ public class UsuarioController {
     // Obtener usuario por ID
     @GetMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> obtenerPorId(@PathVariable("id") Long id) {
-        Usuario usuario = usuarioService.obtenerPorId(id);
-        return ResponseEntity.ok(usuarioService.getUsuarioMapper().aResponseDTO(usuario));
+        UsuarioResponseDTO usuario = usuarioService.obtenerUsuarioDTO(id);
+        return ResponseEntity.ok(usuario);
     }
 
 
@@ -63,9 +63,11 @@ public class UsuarioController {
 
     // Obtener usuario por correo
     @GetMapping("/correo/{correo}")
-    public ResponseEntity<UsuarioResponseDTO> obtenerPorCorreo(@PathVariable("correo") String correo) {
-        Usuario usuario = usuarioService.obtenerPorCorreo(correo);
-        return ResponseEntity.ok(usuarioService.getUsuarioMapper().aResponseDTO(usuario));
+    public ResponseEntity<UsuarioResponseDTO> obtenerPorCorreo(
+            @PathVariable("correo") String correo) {
+
+        UsuarioResponseDTO usuario = usuarioService.obtenerUsuarioPorCorreoDTO(correo);
+        return ResponseEntity.ok(usuario);
     }
 
     // Validar usuario activo

@@ -10,6 +10,7 @@ import org.example.gestionsolicitudes.Model.HistorialSolicitud;
 import org.example.gestionsolicitudes.Model.Solicitud;
 import org.example.gestionsolicitudes.Repository.HistorialSolicitudesRepository;
 import org.example.gestionsolicitudes.Repository.SolicitudRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,14 +18,16 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Getter
-
 public class HistorialSolicitudesService {
 
-    private final HistorialSolicitudesRepository historialRepository;
+    @Autowired
+    private HistorialSolicitudesRepository historialRepository;
 
-    private final SolicitudRepository solicitudRepository;
+    @Autowired
+    private SolicitudRepository solicitudRepository;
 
-    private final HistorialSolicitudesMapper historialMapper;
+    @Autowired
+    private HistorialSolicitudesMapper historialMapper;
 
     //RF-06
     public HistorialSolicitudesResponseDTO registrarAccion(HistorialSolicitudesRequestDTO dto) {

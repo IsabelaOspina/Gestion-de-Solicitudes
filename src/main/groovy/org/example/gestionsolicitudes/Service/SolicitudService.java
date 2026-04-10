@@ -12,6 +12,7 @@ import org.example.gestionsolicitudes.Mapper.SolicitudMapper;
 import org.example.gestionsolicitudes.Model.*;
 import org.example.gestionsolicitudes.Repository.HistorialSolicitudesRepository;
 import org.example.gestionsolicitudes.Repository.SolicitudRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -22,18 +23,23 @@ import java.util.List;
 @RequiredArgsConstructor
 @Getter
 public class SolicitudService {
+    @Autowired
+    private SolicitudRepository solicitudRepository;
 
-    private final SolicitudRepository solicitudRepository;
+    @Autowired
+    private UsuarioService usuarioService;
 
-    private final UsuarioService usuarioService;
+    @Autowired
+    private HistorialSolicitudesRepository historialRepository;
 
-    private final HistorialSolicitudesRepository historialRepository;
+    @Autowired
+    private HistorialSolicitudesMapper historialMapper;
 
-    private final HistorialSolicitudesMapper historialMapper;
+    @Autowired
+    private SolicitudMapper solicitudMapper;
 
-    private final SolicitudMapper solicitudMapper;
-
-    private final IAService iaService;
+    @Autowired
+    private IAService iaService;
 
     // RF-01: Registrar solicitud
     @PreAuthorize("hasAnyRole('ESTUDIANTE','DOCENTE')")
