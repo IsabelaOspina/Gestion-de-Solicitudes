@@ -2,22 +2,41 @@ package org.example.gestionsolicitudes.Repository;
 
 import org.example.gestionsolicitudes.Model.Rol;
 import org.example.gestionsolicitudes.Model.Usuario;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.*;
 
 @DataJpaTest
+@ActiveProfiles("test")
+@DisplayName("UsuarioRepository — Tests de persistencia")
 class UsuarioRepositoryTest {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    private Usuario usuarioBase;
+
+    @BeforeEach
+    void setUp() {
+        usuarioBase = usuarioRepository.save(
+                Usuario.builder()
+                        .nombreUsuario("Test User")
+                        .correoElectronico("base@correo.com")
+                        .password("123456")
+                        .rol(Rol.ESTUDIANTE)
+                        .activo(true)
+                        .build()
+        );
+    }
+
+    // 🔹 Helper
     private Usuario crearUsuario(String correo, Rol rol) {
         return usuarioRepository.save(
                 Usuario.builder()
@@ -30,87 +49,80 @@ class UsuarioRepositoryTest {
         );
     }
 
-    @Test
-    @DisplayName("Debe guardar un usuario correctamente")
-    void guardarUsuarioTest() {
-        Usuario usuario = crearUsuario("test1@correo.com", Rol.ESTUDIANTE);
+    @Nested
+    @DisplayName("CRUD básico")
+    class CrudTests {
 
-        assertNotNull(usuario.getIdUsuario());
-        assertEquals("test1@correo.com", usuario.getCorreoElectronico());
-        assertEquals("Test User", usuario.getNombreUsuario());
-        assertEquals(Rol.ESTUDIANTE, usuario.getRol());
-        assertTrue(usuario.getActivo());
+        @Test
+        @DisplayName("Guardar usuario correctamente")
+        void guardarUsuario() {
+            Usuario usuario = crearUsuario("test1@correo.com", Rol.ESTUDIANTE);
+
+            assertThat(usuario.getIdUsuario()).isNotNull();
+            assertThat(usuario.getCorreoElectronico()).isEqualTo("test1@correo.com");
+            assertThat(usuario.getNombreUsuario()).isEqualTo("Test User");
+            assertThat(usuario.getRol()).isEqualTo(Rol.ESTUDIANTE);
+            assertThat(usuario.getActivo()).isTrue();
+        }
     }
 
-    @Test
-    @DisplayName("Debe encontrar usuario por correo")
-    void findByCorreoElectronicoTest() {
-        crearUsuario("test2@correo.com", Rol.DOCENTE);
+    @Nested
+    @DisplayName("Consultas")
+    class QueryTests {
 
-        Optional<Usuario> resultado =
-                usuarioRepository.findByCorreoElectronico("test2@correo.com");
+        @Test
+        @DisplayName("findByCorreoElectronico existente")
+        void findByCorreo() {
+            Optional<Usuario> resultado =
+                    usuarioRepository.findByCorreoElectronico("base@correo.com");
 
-        assertTrue(resultado.isPresent());
+            assertThat(resultado).isPresent();
+            assertThat(resultado.get().getRol()).isEqualTo(Rol.ESTUDIANTE);
+        }
 
-        Usuario usuario = resultado.get();
-        assertEquals("test2@correo.com", usuario.getCorreoElectronico());
-        assertEquals(Rol.DOCENTE, usuario.getRol());
-        assertTrue(usuario.getActivo());
+        @Test
+        @DisplayName("findByCorreoElectronico inexistente")
+        void findByCorreoNoExiste() {
+            Optional<Usuario> resultado =
+                    usuarioRepository.findByCorreoElectronico("noexiste@correo.com");
+
+            assertThat(resultado).isEmpty();
+        }
+
+        @Test
+        @DisplayName("existsByCorreoElectronico true/false")
+        void existsByCorreo() {
+            assertThat(usuarioRepository.existsByCorreoElectronico("base@correo.com")).isTrue();
+            assertThat(usuarioRepository.existsByCorreoElectronico("fake@correo.com")).isFalse();
+        }
+
+        @Test
+        @DisplayName("findByRol retorna solo ese rol")
+        void findByRol() {
+            crearUsuario("admin1@correo.com", Rol.ADMINISTRATIVO);
+            crearUsuario("admin2@correo.com", Rol.ADMINISTRATIVO);
+
+            List<Usuario> admins =
+                    usuarioRepository.findByRol(Rol.ADMINISTRATIVO);
+
+            assertThat(admins).hasSize(2);
+            assertThat(admins)
+                    .extracting(Usuario::getRol)
+                    .containsOnly(Rol.ADMINISTRATIVO);
+        }
     }
 
-    @Test
-    @DisplayName("Debe retornar vacío si el correo no existe")
-    void findByCorreoNoExisteTest() {
-        Optional<Usuario> resultado =
-                usuarioRepository.findByCorreoElectronico("noexiste@correo.com");
+    @Nested
+    @DisplayName("Restricciones")
+    class ConstraintTests {
 
-        assertFalse(resultado.isPresent());
-    }
+        @Test
+        @DisplayName("No debe permitir correos duplicados")
+        void noCorreosDuplicados() {
 
-    @Test
-    @DisplayName("Debe validar existencia por correo")
-    void existsByCorreoElectronicoTest() {
-        crearUsuario("test3@correo.com", Rol.ESTUDIANTE);
-
-        boolean existe =
-                usuarioRepository.existsByCorreoElectronico("test3@correo.com");
-
-        assertTrue(existe);
-    }
-
-    @Test
-    @DisplayName("Debe retornar false si el correo no existe")
-    void existsByCorreoElectronicoFalseTest() {
-        boolean existe =
-                usuarioRepository.existsByCorreoElectronico("fake@correo.com");
-
-        assertFalse(existe);
-    }
-
-    @Test
-    @DisplayName("Debe encontrar usuarios por rol")
-    void findByRolTest() {
-        crearUsuario("admin1@correo.com", Rol.ADMINISTRATIVO);
-        crearUsuario("admin2@correo.com", Rol.ADMINISTRATIVO);
-        crearUsuario("user@correo.com", Rol.ESTUDIANTE);
-
-        List<Usuario> admins =
-                usuarioRepository.findByRol(Rol.ADMINISTRATIVO);
-
-        assertEquals(2, admins.size());
-
-        admins.forEach(usuario ->
-                assertEquals(Rol.ADMINISTRATIVO, usuario.getRol())
-        );
-    }
-
-    @Test
-    @DisplayName("No debería permitir correos duplicados")
-    void noDebePermitirCorreosDuplicados() {
-        crearUsuario("dup@correo.com", Rol.ESTUDIANTE);
-
-        assertThrows(Exception.class, () -> {
-            crearUsuario("dup@correo.com", Rol.DOCENTE);
-        });
+            assertThatThrownBy(() ->
+                    crearUsuario("base@correo.com", Rol.DOCENTE)
+            ).isInstanceOf(DataIntegrityViolationException.class);
+        }
     }
 }

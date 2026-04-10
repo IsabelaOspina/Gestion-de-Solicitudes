@@ -1,17 +1,19 @@
 package org.example.gestionsolicitudes.Repository;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import org.example.gestionsolicitudes.Model.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @DataJpaTest
+@ActiveProfiles("test")
 class SolicitudRepositoryTest {
 
     @Autowired
@@ -21,15 +23,15 @@ class SolicitudRepositoryTest {
     private UsuarioRepository usuarioRepository;
 
     private Usuario crearUsuario(String correo, Rol rol) {
-        Usuario usuario = Usuario.builder()
-                .nombreUsuario("Usuario Test")
-                .correoElectronico(correo)
-                .password("123456")
-                .rol(rol)
-                .activo(true)
-                .build();
-
-        return usuarioRepository.save(usuario);
+        return usuarioRepository.save(
+                Usuario.builder()
+                        .nombreUsuario("Usuario Test")
+                        .correoElectronico(correo)
+                        .password("123456")
+                        .rol(rol)
+                        .activo(true)
+                        .build()
+        );
     }
 
     private Solicitud crearSolicitud(Usuario solicitante,
@@ -37,16 +39,18 @@ class SolicitudRepositoryTest {
                                      TipoSolicitud tipo,
                                      NivelPrioridad prioridad) {
 
-        Solicitud solicitud = Solicitud.builder()
-                .descripcion("Solicitud de prueba")
-                .canalOrigen(CanalOrigen.CORREO_ELECTRONICO)
-                .tipoSolicitud(tipo)
-                .estadoSolicitud(estado)
-                .nivelPrioridad(prioridad)
-                .solicitante(solicitante)
-                .build();
-
-        return solicitudRepository.save(solicitud);
+        return solicitudRepository.save(
+                Solicitud.builder()
+                        .descripcion("Solicitud de prueba")
+                        .canalOrigen(CanalOrigen.CORREO_ELECTRONICO)
+                        .tipoSolicitud(tipo)
+                        .estadoSolicitud(estado)
+                        .nivelPrioridad(prioridad)
+                        .fechaHoraRegistro(LocalDateTime.now())
+                        .fechaLimite(LocalDateTime.now().plusDays(3))
+                        .solicitante(solicitante)
+                        .build()
+        );
     }
 
     @Test
@@ -133,7 +137,7 @@ class SolicitudRepositoryTest {
         );
 
         solicitud.setResponsableAsignado(responsable);
-        solicitudRepository.save(solicitud);
+        solicitud = solicitudRepository.saveAndFlush(solicitud);
 
         List<Solicitud> resultados =
                 solicitudRepository.findByResponsableAsignado(responsable);
