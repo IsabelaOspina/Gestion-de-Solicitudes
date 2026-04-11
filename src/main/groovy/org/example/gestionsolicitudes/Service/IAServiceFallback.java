@@ -1,9 +1,10 @@
 package org.example.gestionsolicitudes.Service;
 
-import org.example.gestionsolicitudes.Model.CanalOrigen;
 import org.example.gestionsolicitudes.Model.Solicitud;
 import org.example.gestionsolicitudes.Model.TipoSolicitud;
+import org.springframework.stereotype.Service;
 
+@Service
 public class IAServiceFallback {
 
     public String generarResumenConDatos(Solicitud solicitud, Exception e) {
@@ -47,7 +48,7 @@ public class IAServiceFallback {
     }
 
 
-    public String sugerirPrioridadFallback(String descripcion) {
+    public String sugerirPrioridadFallback(String descripcion, TipoSolicitud tipoSolicitud) {
 
         System.out.println("Fallback activado para prioridad (sin IA)");
 
@@ -57,51 +58,54 @@ public class IAServiceFallback {
         String impacto="";
         String justificacion = "";
 
-        // PRIORIDAD ALTA
-        if (texto.contains("caido") ||
-                texto.contains("no funciona") ||
-                texto.contains("error crítico") ||
-                texto.contains("urgente") ||
-                texto.contains("bloqueado") ||
-                texto.contains("no responde")) {
+        switch (tipoSolicitud) {
+
+            case CANCELACION_ASIGNATURA:
+                prioridad = "ALTA";
+                impacto = "Puede afectar directamente el semestre del estudiante";
+                justificacion = "Cancelación de asignatura requiere gestión oportuna";
+                break;
+
+            case REGISTRO_ASIGNATURA:
+                prioridad = "ALTA";
+                impacto = "Impacta el proceso de matrícula";
+                justificacion = "El registro de asignaturas es crítico en tiempos académicos";
+                break;
+
+            case SOLICITUD_CUPO:
+                prioridad = "MEDIA";
+                impacto = "Afecta el acceso a una asignatura";
+                justificacion = "Depende de disponibilidad de cupos";
+                break;
+
+            case HOMOLOGACION:
+                prioridad = "MEDIA";
+                impacto = "Proceso administrativo académico";
+                justificacion = "Requiere validación pero no es urgente";
+                break;
+
+            case CONSULTA_ACADEMICA:
+                prioridad = "BAJA";
+                impacto = "No afecta directamente procesos académicos";
+                justificacion = "Es una solicitud informativa";
+                break;
+
+            default:
+                prioridad = "MEDIA";
+                impacto = "Impacto no determinado";
+                justificacion = "Tipo de solicitud no identificado";
+        }
+
+        if (texto.contains("urgente") ||
+                texto.contains("ya") ||
+                texto.contains("inmediato")) {
 
             prioridad = "ALTA";
-            impacto = "El sistema o funcionalidad está interrumpido completamente";
-            justificacion = "Se detectan palabras clave asociadas a fallos críticos o interrupciones del servicio";
-        }
-
-        // PRIORIDAD MEDIA
-        else if (texto.contains("lento") ||
-                texto.contains("intermitente") ||
-                texto.contains("error") ||
-                texto.contains("problema")) {
-
-            prioridad = "MEDIA";
-            impacto = "El sistema presenta fallas parciales o degradación";
-            justificacion = "Se identifican problemas que afectan el funcionamiento pero no lo detienen completamente";
-        }
-
-        // PRIORIDAD BAJA
-        else if (texto.contains("consulta") ||
-                texto.contains("información") ||
-                texto.contains("mejora") ||
-                texto.contains("sugerencia")) {
-
-            prioridad = "BAJA";
-            impacto = "No afecta directamente la operación del sistema";
-            justificacion = "La solicitud corresponde a consultas o mejoras sin impacto crítico";
-        }
-
-        else {
-            prioridad = "MEDIA";
-            impacto = "Impacto no determinado claramente";
-            justificacion = "No se detectaron palabras clave específicas";
+            justificacion += " | Ajustada por urgencia en la descripción";
         }
 
         return "PRIORIDAD: " + prioridad + "\n" +
                 "IMPACTO: " + impacto + "\n" +
                 "JUSTIFICACION: " + justificacion;
     }
-
-
 }

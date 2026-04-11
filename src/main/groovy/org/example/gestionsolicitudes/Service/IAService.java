@@ -25,15 +25,14 @@ public class IAService {
     private IAServiceFallback fallback;
 
     @Autowired
-    private SolicitudService solicitudService;
-
+    private PromptService promptService;
 
     //RF-09
     public String generarResumen(Solicitud solicitud) {
 
         try {
 
-            String prompt = solicitudService.construirPrompt(solicitud);
+            String prompt = promptService.construirPrompt(solicitud);
 
             String url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
@@ -146,7 +145,7 @@ public class IAService {
           System.err.println("Error IA prioridad: " + e.getMessage());
 
           return fallback.sugerirPrioridadFallback(
-                  descripcion);
+                  descripcion,tipoSolicitud);
       }
     }
 }

@@ -60,7 +60,7 @@ class SolicitudServiceTest {
                 .build();
     }
 
-    // 🔹 REGISTRAR
+    // REGISTRAR
     @Nested
     @DisplayName("Registrar solicitud")
     class RegistrarTests {
@@ -95,7 +95,7 @@ class SolicitudServiceTest {
         }
     }
 
-    // 🔹 PRIORIZAR
+    // PRIORIZAR
     @Nested
     @DisplayName("Priorizar solicitud")
     class PriorizarTests {
@@ -130,7 +130,7 @@ class SolicitudServiceTest {
         }
     }
 
-    // 🔹 ASIGNAR RESPONSABLE
+    // ASIGNAR RESPONSABLE
     @Nested
     @DisplayName("Asignar responsable")
     class AsignarTests {
@@ -162,7 +162,7 @@ class SolicitudServiceTest {
         }
     }
 
-    // 🔹 CERRAR
+    // CERRAR
     @Nested
     @DisplayName("Cerrar solicitud")
     class CerrarTests {
@@ -196,7 +196,7 @@ class SolicitudServiceTest {
         }
     }
 
-    // 🔹 RESUMEN IA
+    // RESUMEN IA
     @Nested
     @DisplayName("Generar resumen")
     class ResumenTests {

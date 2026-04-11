@@ -1,6 +1,7 @@
 package org.example.gestionsolicitudes.Service;
 
 import org.example.gestionsolicitudes.Model.CanalOrigen;
+import org.example.gestionsolicitudes.Model.Solicitud;
 import org.example.gestionsolicitudes.Model.TipoSolicitud;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,20 +12,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @TestPropertySource(properties = "gemini.api.key=${GEMINI_API_KEY}")
-class IAServiceIntegrationTest {
+class IAServiceTest {
 
     @Autowired
     private IAService iaService;
 
     @Test
     void generarResumen_IntegracionReal() {
-        // Requiere GEMINI_API_KEY configurada
-        String prompt = "Resume: El usuario no puede iniciar sesión desde ayer";
 
-        String resultado = iaService.generarResumen(prompt);
+        // Crear solicitud de prueba
+        Solicitud solicitud = new Solicitud();
+        solicitud.setDescripcion("Necesito urgentemente un certificado de estudio del semestre pasado para un trámite académico.");
+        solicitud.setTipoSolicitud(TipoSolicitud.CONSULTA_ACADEMICA);
+        solicitud.setCanalOrigen(CanalOrigen.CORREO_ELECTRONICO);
+
+        String resultado = iaService.generarResumen(solicitud);
 
         assertNotNull(resultado);
         assertFalse(resultado.isEmpty());
+
         System.out.println("Resumen generado: " + resultado);
     }
 
