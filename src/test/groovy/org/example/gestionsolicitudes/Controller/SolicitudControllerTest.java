@@ -83,10 +83,10 @@ class SolicitudControllerTest {
         CrearSolicitudRequestDTO request = new CrearSolicitudRequestDTO();
         request.setDescripcion("Nueva solicitud de prueba");
 
-        when(solicitudService.registrarSolicitud(any(), anyLong()))
+        when(solicitudService.registrarSolicitud(any()))
                 .thenReturn(mockResponse());
 
-        mockMvc.perform(post("/solicitudes/registrar/1")
+        mockMvc.perform(post("/solicitudes/registrar")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())

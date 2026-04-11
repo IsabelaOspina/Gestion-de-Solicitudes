@@ -1,6 +1,7 @@
 package org.example.gestionsolicitudes.config
 
-
+import javax.crypto.SecretKey
+import java.time.Instant
 
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
@@ -16,32 +17,35 @@ class JwtService {
 
     private final String secretKey = "miclaveultrasecreta123ultrasecreta123"
 
-    public String generarToken(String correo, String rol) {
+    private SecretKey getKey() {
+        return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8))
+    }
+
+    String generarToken(String correo, String rol) {
         return Jwts.builder()
                 .setSubject(correo)
                 .claim("role", rol)
                 .setIssuedAt(new Date())
                 .setExpiration(Date.from(Instant.now().plus(1, ChronoUnit.HOURS)))
-                .signWith(SignatureAlgorithm.HS256, secretKey.getBytes(StandardCharsets.UTF_8))
-                .compact();
+                .signWith(getKey(), SignatureAlgorithm.HS256)
+                .compact()
     }
 
-    public String extraerUsername(String token) {
+    String extraerUsername(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .getSubject();
+                .getSubject()
     }
 
-    public String extraerRol(String token) {
+    String extraerRol(String token) {
         return Jwts.parserBuilder()
-                .setSigningKey(secretKey.getBytes(StandardCharsets.UTF_8))
+                .setSigningKey(getKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
-                .get("role", String.class);
+                .get("role", String.class)
     }
-
 }

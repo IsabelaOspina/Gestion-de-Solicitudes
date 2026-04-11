@@ -1,5 +1,6 @@
 package org.example.gestionsolicitudes.Controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
 import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
@@ -21,13 +22,12 @@ public class SolicitudController {
 
     private final SolicitudService solicitudService;
 
-    @PostMapping("/registrar/{idSolicitante}")
+    @PostMapping("/registrar")
     public ResponseEntity<SolicitudResponseDTO> registrarSolicitud(
-            @RequestBody CrearSolicitudRequestDTO dto,
-            @PathVariable("idSolicitante") Long idSolicitante) {
+            @Valid @RequestBody CrearSolicitudRequestDTO dto){
 
         SolicitudResponseDTO nuevaSolicitud =
-                solicitudService.registrarSolicitud(dto, idSolicitante);
+                solicitudService.registrarSolicitud(dto);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevaSolicitud);
     }

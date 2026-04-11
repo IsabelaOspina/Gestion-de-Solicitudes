@@ -6,10 +6,14 @@ import org.example.gestionsolicitudes.Mapper.SolicitudMapper;
 import org.example.gestionsolicitudes.Model.*;
 import org.example.gestionsolicitudes.Repository.HistorialSolicitudesRepository;
 import org.example.gestionsolicitudes.Repository.SolicitudRepository;
+import org.example.gestionsolicitudes.Repository.UsuarioRepository;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -27,6 +31,7 @@ class SolicitudServiceTest {
     @Mock private HistorialSolicitudesMapper historialMapper;
     @Mock private SolicitudMapper solicitudMapper;
     @Mock private IAService iaService;
+    @Mock private UsuarioRepository usuarioRepository;
 
     @InjectMocks private SolicitudService solicitudService;
 
@@ -68,15 +73,27 @@ class SolicitudServiceTest {
         @Test
         @DisplayName("Debe registrar correctamente")
         void registrar_exitoso() {
+
             CrearSolicitudRequestDTO dto = new CrearSolicitudRequestDTO();
 
-            when(usuarioService.obtenerUsuarioActivo(1L)).thenReturn(estudiante);
+            Authentication authentication = mock(Authentication.class);
+
+            SecurityContext securityContext = mock(SecurityContext.class);
+
+            SecurityContextHolder.setContext(securityContext);
+
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn("estudiante1");
+
+            when(usuarioRepository.findByNombreUsuario("estudiante1"))
+                    .thenReturn(Optional.of(estudiante));
+
             when(solicitudMapper.aEntidad(dto, estudiante)).thenReturn(solicitud);
             when(solicitudRepository.save(any())).thenReturn(solicitud);
             when(solicitudMapper.aResponseDTO(any())).thenReturn(new SolicitudResponseDTO());
 
             SolicitudResponseDTO res =
-                    solicitudService.registrarSolicitud(dto, 1L);
+                    solicitudService.registrarSolicitud(dto);
 
             assertThat(res).isNotNull();
             verify(solicitudRepository).save(any());
@@ -85,12 +102,22 @@ class SolicitudServiceTest {
         @Test
         @DisplayName("Debe fallar si es administrativo")
         void registrar_adminFalla() {
+
             CrearSolicitudRequestDTO dto = new CrearSolicitudRequestDTO();
 
-            when(usuarioService.obtenerUsuarioActivo(1L)).thenReturn(admin);
+            Authentication authentication = mock(Authentication.class);
+            SecurityContext securityContext = mock(SecurityContext.class);
+
+            SecurityContextHolder.setContext(securityContext);
+
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            when(authentication.getName()).thenReturn("admin1");
+
+            when(usuarioRepository.findByNombreUsuario("admin1"))
+                    .thenReturn(Optional.of(admin));
 
             assertThatThrownBy(() ->
-                    solicitudService.registrarSolicitud(dto, 1L))
+                    solicitudService.registrarSolicitud(dto))
                     .isInstanceOf(IllegalStateException.class);
         }
     }

@@ -16,4 +16,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Buscar por rol
     List<Usuario> findByRol(Rol rol);
 
+    Optional<Usuario> findByNombreUsuario(String nombreUsuario);
+
 }

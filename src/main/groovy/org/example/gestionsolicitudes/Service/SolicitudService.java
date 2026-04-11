@@ -12,11 +12,15 @@ import org.example.gestionsolicitudes.Mapper.SolicitudMapper;
 import org.example.gestionsolicitudes.Model.*;
 import org.example.gestionsolicitudes.Repository.HistorialSolicitudesRepository;
 import org.example.gestionsolicitudes.Repository.SolicitudRepository;
+import org.example.gestionsolicitudes.Repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -41,30 +45,35 @@ public class SolicitudService {
     @Autowired
     private IAService iaService;
 
+    @Autowired
+    private UsuarioRepository usuarioRepository;
+
     // RF-01: Registrar solicitud
     @PreAuthorize("hasAnyRole('ESTUDIANTE','DOCENTE')")
-    public SolicitudResponseDTO registrarSolicitud(CrearSolicitudRequestDTO dto, Long idSolicitante) {
-        Usuario solicitante = usuarioService.obtenerUsuarioActivo(idSolicitante);
+    public SolicitudResponseDTO registrarSolicitud(CrearSolicitudRequestDTO dto) {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String correo = auth.getName();
+
+        Usuario solicitante = usuarioRepository.findByCorreoElectronico(correo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         if (solicitante.getRol() == Rol.ADMINISTRATIVO) {
             throw new IllegalStateException("Los administrativos no pueden ser solicitantes");
         }
 
-        // Mapear DTO a entidad
         Solicitud solicitud = solicitudMapper.aEntidad(dto, solicitante);
 
-        // Historial
         HistorialSolicitud historial = HistorialSolicitud.builder()
                 .fechaHora(LocalDateTime.now())
                 .accionRealizada("Registro de solicitud")
                 .observaciones("Solicitud registrada por " + solicitante.getNombreUsuario())
                 .solicitud(solicitud)
                 .build();
+
         solicitud.getHistorial().add(historial);
 
-        // Guardar y devolver DTO
         return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
-
     }
 
     // RF-03: Priorización
@@ -116,6 +125,7 @@ public class SolicitudService {
     // RF-05: Asignación de responsable
     @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public SolicitudResponseDTO asignarResponsable(Long idSolicitud, Long idResponsable) {
+
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
@@ -129,24 +139,28 @@ public class SolicitudService {
             throw new IllegalStateException("Solo los administrativos pueden ser responsables");
         }
 
+        if (solicitud.getEstadoSolicitud() == EstadoSolicitud.CERRADA) {
+            throw new IllegalStateException("No se puede asignar responsable a una solicitud cerrada");
+        }
+
         solicitud.setResponsableAsignado(responsable);
         solicitud.setEstadoSolicitud(EstadoSolicitud.EN_ATENCION);
 
-        // Registrar historial
         HistorialSolicitud historial = new HistorialSolicitud();
         historial.setFechaHora(LocalDateTime.now());
         historial.setAccionRealizada("Asignación de responsable");
         historial.setObservaciones("Asignado a " + responsable.getNombreUsuario());
         historial.setSolicitud(solicitud);
 
+        if (solicitud.getHistorial() == null) {
+            solicitud.setHistorial(new ArrayList<>());
+        }
+
         solicitud.getHistorial().add(historial);
 
-        // Guardar cambios
         solicitudRepository.save(solicitud);
-        historialRepository.save(historial);
 
         return solicitudMapper.aResponseDTO(solicitud);
-
     }
     // RF-07: Consultas simples (estado, tipo, prioridad, responsable)
     @PreAuthorize("hasRole('ADMINISTRATIVO')")
