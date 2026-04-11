@@ -268,11 +268,8 @@ public class SolicitudService {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
-        String prompt = construirPrompt(solicitud);
+        String resumen = iaService.generarResumen(solicitud);
 
-        String resumen = iaService.generarResumen(prompt);
-
-        // Construir DTO
         ResumenSolicitudResponseDTO response = new ResumenSolicitudResponseDTO();
         response.setIdSolicitud(solicitud.getIdSolicitud());
         response.setEstadoSolicitud(solicitud.getEstadoSolicitud());
