@@ -296,17 +296,25 @@ public class SolicitudService {
             throw new IllegalArgumentException("Debe describir cómo se atendió la solicitud");
         }
 
+        // Verificar que tenga responsable asignado
+        if (solicitud.getResponsableAsignado() == null) {
+            throw new IllegalStateException("La solicitud no tiene responsable asignado");
+        }
 
+        // Obtener usuario autenticado
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String correo = auth.getName();
 
         Usuario usuarioActual = usuarioRepository.findByCorreoElectronico(correo)
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
-        if (!solicitud.getResponsableAsignado().getIdUsuario().equals(usuarioActual.getIdUsuario())) {
+        // Verificar que sea el responsable asignado
+        if (!solicitud.getResponsableAsignado().getIdUsuario()
+                .equals(usuarioActual.getIdUsuario())) {
             throw new IllegalStateException("Solo el responsable asignado puede atender la solicitud");
         }
 
+        // Cambiar estado
         solicitud.setEstadoSolicitud(EstadoSolicitud.ATENDIDA);
 
         String mensaje = "Solicitud atendida por " + usuarioActual.getNombreUsuario() +

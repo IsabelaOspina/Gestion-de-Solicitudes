@@ -93,6 +93,7 @@ public class SolicitudController {
         ResumenSolicitudResponseDTO response = solicitudService.generarResumenSolicitud(idSolicitud);
         return ResponseEntity.ok(response);
     }
+
     @PostMapping("/atender/{idSolicitud}")
     public ResponseEntity<SolicitudResponseDTO> atenderSolicitud(
             @PathVariable("idSolicitud") Long idSolicitud,

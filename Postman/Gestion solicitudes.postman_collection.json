@@ -1,0 +1,678 @@
+{
+  "info": {
+    "_postman_id": "8e4dee3b-d2e0-4688-9b09-5229a7642e81",
+    "name": "Gestion solicitudes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50109269",
+    "_collection_link": "https://go.postman.co/collection/50109269-8e4dee3b-d2e0-4688-9b09-5229a7642e81?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "crear estudiante",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"nombre\": \"Isabela\",\r\n  \"correo\": \"isa@gmail.com\",\r\n  \"password\": \"123456\",\r\n  \"rol\": \"ESTUDIANTE\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/usuarios/crear",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "usuarios",
+            "crear"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "crear administrativo",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n\r\n  \"nombre\": \"Juan\",\r\n  \"correo\": \"juan@gmail.com\",\r\n  \"password\": \"123456\",\r\n  \"rol\": \"ADMINISTRATIVO\"\r\n\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/usuarios/crear",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "usuarios",
+            "crear"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login estudiante",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n     \"correoElectronico\": \"isa@gmail.com\",\r\n  \"password\": \"123456\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/usuarios/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "usuarios",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "login administrativo",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n   \"correoElectronico\": \"juan@gmail.com\",\r\n  \"password\": \"123456\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/usuarios/login",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "usuarios",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "obtener usuario por id",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkyOTkzMCwiZXhwIjoxNzc1OTMzNTMwfQ.gz8PPJO7KuxQ5NaNiKKuLcO5csBbIQ7WLxmgMNcebhQ",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/usuarios/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "usuarios",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "obtener usuario por rol",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkyOTkzMCwiZXhwIjoxNzc1OTMzNTMwfQ.gz8PPJO7KuxQ5NaNiKKuLcO5csBbIQ7WLxmgMNcebhQ",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/usuarios/rol/ESTUDIANTE",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "usuarios",
+            "rol",
+            "ESTUDIANTE"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "obtener usuario por correo",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkyOTkzMCwiZXhwIjoxNzc1OTMzNTMwfQ.gz8PPJO7KuxQ5NaNiKKuLcO5csBbIQ7WLxmgMNcebhQ",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/usuarios/correo/isa@gmail.com",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "usuarios",
+            "correo",
+            "isa@gmail.com"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "validar usuario activo",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkyOTkzMCwiZXhwIjoxNzc1OTMzNTMwfQ.gz8PPJO7KuxQ5NaNiKKuLcO5csBbIQ7WLxmgMNcebhQ",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/usuarios/1/activo",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "usuarios",
+            "1",
+            "activo"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "registrar solicitud",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJpc2FAZ21haWwuY29tIiwicm9sZSI6IkVTVFVESUFOVEUiLCJpYXQiOjE3NzU5MzM3OTMsImV4cCI6MTc3NTkzNzM5M30.-Hp3mxfj2c7l6X1DVmiLSBgjNbIC9XtqfjEPa3TCqEo",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n   \"descripcion\":\"Necesito un certificado de estudia del semestre 2025-1\",\r\n   \"tipoSolicitud\":\"CONSULTA_ACADEMICA\",\r\n   \"canalOrigen\":\"SAC\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/registrar",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "registrar"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "priorizar solicitud",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkzNDA5OSwiZXhwIjoxNzc1OTM3Njk5fQ.H9_grSiudGyl90tA0ld33D8hd2Vji30b3zLjvK4217A",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "PUT",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"usarIA\":true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/priorizar/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "priorizar",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "asignar responsable a una solicitud",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkzNDMwMiwiZXhwIjoxNzc1OTM3OTAyfQ.fSzkXtTw-yLYHWpEe1wyGjhiKxdU5m5IFT8UaoVcsSw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"usarIA\":true\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/1/asignar/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "1",
+            "asignar",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "consultar solicitud por estado",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkzNDMwMiwiZXhwIjoxNzc1OTM3OTAyfQ.fSzkXtTw-yLYHWpEe1wyGjhiKxdU5m5IFT8UaoVcsSw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"usarIA\":true\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/estado/EN_ATENCION",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "estado",
+            "EN_ATENCION"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "consultar por tipo",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkzNDMwMiwiZXhwIjoxNzc1OTM3OTAyfQ.fSzkXtTw-yLYHWpEe1wyGjhiKxdU5m5IFT8UaoVcsSw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"usarIA\":true\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/tipo/CONSULTA_ACADEMICA",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "tipo",
+            "CONSULTA_ACADEMICA"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "consultar por prioridad",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkzNDMwMiwiZXhwIjoxNzc1OTM3OTAyfQ.fSzkXtTw-yLYHWpEe1wyGjhiKxdU5m5IFT8UaoVcsSw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"usarIA\":true\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/prioridad/MEDIA",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "prioridad",
+            "MEDIA"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "consultar por responsable",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkzNDMwMiwiZXhwIjoxNzc1OTM3OTAyfQ.fSzkXtTw-yLYHWpEe1wyGjhiKxdU5m5IFT8UaoVcsSw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"usarIA\":true\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/responsable/2",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "responsable",
+            "2"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "consultar por solicitante",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NTkzNDMwMiwiZXhwIjoxNzc1OTM3OTAyfQ.fSzkXtTw-yLYHWpEe1wyGjhiKxdU5m5IFT8UaoVcsSw",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"usarIA\":true\r\n}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/solicitante/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "solicitante",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "historial de la solicitud",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NjAxMjE2NCwiZXhwIjoxNzc2MDE1NzY0fQ.xPTU7CNoPR7PkwLN-IT5Sj0pAFa9oF5X8EcPjm5JQvY",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/historial-solicitudes/solicitud/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "historial-solicitudes",
+            "solicitud",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "atender solicitud",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NjAxMjE2NCwiZXhwIjoxNzc2MDE1NzY0fQ.xPTU7CNoPR7PkwLN-IT5Sj0pAFa9oF5X8EcPjm5JQvY",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"observacion\":\"se logro obtener el certificado de estudio del estudiante correctamente\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/atender/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "atender",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "cerrar solicitud",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJqdWFuQGdtYWlsLmNvbSIsInJvbGUiOiJBRE1JTklTVFJBVElWTyIsImlhdCI6MTc3NjAxMjE2NCwiZXhwIjoxNzc2MDE1NzY0fQ.xPTU7CNoPR7PkwLN-IT5Sj0pAFa9oF5X8EcPjm5JQvY",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"observacion\":\"se atendio la solicitud en el tiempo establecido\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "http://localhost:8080/solicitudes/cerrar/1",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "solicitudes",
+            "cerrar",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
