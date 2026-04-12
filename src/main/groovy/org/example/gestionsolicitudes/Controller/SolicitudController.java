@@ -2,10 +2,7 @@ package org.example.gestionsolicitudes.Controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
-import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
-import org.example.gestionsolicitudes.Dtos.ResumenSolicitudResponseDTO;
-import org.example.gestionsolicitudes.Dtos.SolicitudResponseDTO;
+import org.example.gestionsolicitudes.Dtos.*;
 import org.example.gestionsolicitudes.Model.*;
 import org.example.gestionsolicitudes.Service.SolicitudService;
 import org.springframework.http.HttpStatus;
@@ -94,6 +91,16 @@ public class SolicitudController {
     @GetMapping("/{idSolicitud}/resumen")
     public ResponseEntity<ResumenSolicitudResponseDTO> generarResumen(@PathVariable("idSolicitud") Long idSolicitud) {
         ResumenSolicitudResponseDTO response = solicitudService.generarResumenSolicitud(idSolicitud);
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/atender/{idSolicitud}")
+    public ResponseEntity<SolicitudResponseDTO> atenderSolicitud(
+            @PathVariable("idSolicitud") Long idSolicitud,
+            @RequestBody AtenderSolicitudRequestDTO dto) {
+
+        SolicitudResponseDTO response =
+                solicitudService.atenderSolicitud(idSolicitud, dto.getObservacion());
+
         return ResponseEntity.ok(response);
     }
 

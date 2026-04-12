@@ -79,8 +79,15 @@ public class SolicitudService {
     // RF-03: Priorización
     @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public SolicitudResponseDTO priorizarSolicitud(Long idSolicitud, PrioridadSolicitudRequestDTO dto) {
+
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+
+        if (solicitud.getEstadoSolicitud() != EstadoSolicitud.REGISTRADA) {
+            throw new IllegalStateException("La prioridad solo se puede asignar una vez cuando la solicitud está en estado REGISTRADA");
+        }
+
+        String detalleAccion = "";
 
         if (Boolean.TRUE.equals(dto.getUsarIA())) {
 
@@ -95,31 +102,49 @@ public class SolicitudService {
 
             if (respuestaIA.contains("ALTA")) {
                 solicitud.setNivelPrioridad(NivelPrioridad.ALTA);
-            }
-            else if (respuestaIA.contains("MEDIA")) {
+            } else if (respuestaIA.contains("MEDIA")) {
                 solicitud.setNivelPrioridad(NivelPrioridad.MEDIA);
-            }
-            else {
+            } else {
                 solicitud.setNivelPrioridad(NivelPrioridad.BAJA);
             }
 
             if (respuestaIA.contains("JUSTIFICACION:")) {
-
                 String justificacion = respuestaIA.split("JUSTIFICACION:")[1].trim();
-
                 solicitud.setJustificacionPrioridad(justificacion);
             }
+
+            detalleAccion = "Priorización automática (IA). Prioridad: "
+                    + solicitud.getNivelPrioridad()
+                    + ". Justificación: "
+                    + (solicitud.getJustificacionPrioridad() != null ? solicitud.getJustificacionPrioridad() : "No especificada");
 
         } else {
 
             solicitudMapper.actualizarPrioridad(solicitud, dto);
+
+            detalleAccion = "Priorización manual. Prioridad: "
+                    + solicitud.getNivelPrioridad();
         }
 
         solicitud.asignarFechaRegistroYLimite();
-
         solicitud.setEstadoSolicitud(EstadoSolicitud.CLASIFICADA);
 
-        return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
+        // HISTORIAL
+        HistorialSolicitud historial = new HistorialSolicitud();
+        historial.setFechaHora(LocalDateTime.now());
+        historial.setAccionRealizada("Priorización de solicitud");
+        historial.setObservaciones(detalleAccion);
+        historial.setSolicitud(solicitud);
+
+        if (solicitud.getHistorial() == null) {
+            solicitud.setHistorial(new ArrayList<>());
+        }
+
+        solicitud.getHistorial().add(historial);
+
+        solicitudRepository.save(solicitud);
+
+        return solicitudMapper.aResponseDTO(solicitud);
     }
 
     // RF-05: Asignación de responsable
@@ -257,6 +282,46 @@ public class SolicitudService {
 
         return response;
     }
+    @PreAuthorize("hasRole('ADMINISTRATIVO')")
+    public SolicitudResponseDTO atenderSolicitud(Long idSolicitud, String observacion) {
+
+        Solicitud solicitud = solicitudRepository.findById(idSolicitud)
+                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+
+        if (solicitud.getEstadoSolicitud() != EstadoSolicitud.EN_ATENCION) {
+            throw new IllegalStateException("Solo se pueden atender solicitudes en estado EN_ATENCION");
+        }
+
+        if (observacion == null || observacion.trim().isEmpty()) {
+            throw new IllegalArgumentException("Debe describir cómo se atendió la solicitud");
+        }
 
 
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String correo = auth.getName();
+
+        Usuario usuarioActual = usuarioRepository.findByCorreoElectronico(correo)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        if (!solicitud.getResponsableAsignado().getIdUsuario().equals(usuarioActual.getIdUsuario())) {
+            throw new IllegalStateException("Solo el responsable asignado puede atender la solicitud");
+        }
+
+        solicitud.setEstadoSolicitud(EstadoSolicitud.ATENDIDA);
+
+        String mensaje = "Solicitud atendida por " + usuarioActual.getNombreUsuario() +
+                ". Acción realizada: " + observacion;
+
+        // Guardar historial
+        HistorialSolicitud historial = HistorialSolicitud.builder()
+                .fechaHora(LocalDateTime.now())
+                .accionRealizada("Atención de solicitud")
+                .observaciones(mensaje)
+                .solicitud(solicitud)
+                .build();
+
+        solicitud.getHistorial().add(historial);
+
+        return solicitudMapper.aResponseDTO(solicitudRepository.save(solicitud));
+    }
 }

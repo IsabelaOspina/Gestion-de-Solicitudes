@@ -63,26 +63,6 @@ class HistorialSolicitudesControllerTest {
     }
 
     @Test
-    @DisplayName("201 — Registrar acción en historial")
-    void registrarAccion_exitoso() throws Exception {
-
-        HistorialSolicitudesRequestDTO request = new HistorialSolicitudesRequestDTO();
-        request.setIdSolicitud(10L);
-        request.setAccionRealizada("Asignación");
-        request.setObservaciones("Asignado a responsable");
-
-        when(historialSolicitudesService.registrarAccion(any()))
-                .thenReturn(mockResponse());
-
-        mockMvc.perform(post("/historial-solicitudes/registrar-accion")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.accionRealizada").value("Asignación de responsable"))
-                .andExpect(jsonPath("$.idSolicitud").value(10));
-    }
-
-    @Test
     @DisplayName("200 — Obtener historial por solicitud")
     void obtenerHistorialPorSolicitud() throws Exception {
 

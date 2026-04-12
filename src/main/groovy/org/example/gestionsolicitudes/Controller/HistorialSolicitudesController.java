@@ -17,12 +17,6 @@ public class HistorialSolicitudesController {
     @Autowired
     public HistorialSolicitudesService historialSolicitudesService;
 
-    @PostMapping("/registrar-accion")
-    public ResponseEntity<HistorialSolicitudesResponseDTO> registrar_accion(@RequestBody HistorialSolicitudesRequestDTO dto) {
-        HistorialSolicitudesResponseDTO response = historialSolicitudesService.registrarAccion(dto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
-    }
-
     @GetMapping("/solicitud/{idSolicitud}")
     public ResponseEntity<List<HistorialSolicitudesResponseDTO>> obtenerHistorialPorSolicitud(
             @PathVariable("idSolicitud") Long idSolicitud) {
