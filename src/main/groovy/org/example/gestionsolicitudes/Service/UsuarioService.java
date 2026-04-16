@@ -74,16 +74,6 @@ public class UsuarioService {
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
     }
 
-    public Usuario findByActivoTrue(Long id) {
-        Usuario usuario = obtenerPorId(id);
-
-        if (!usuario.getActivo()) {
-            throw new RuntimeException("El usuario está inactivo");
-        }
-
-        return usuario;
-    }
-
     public UsuarioResponseDTO obtenerUsuarioDTO(Long id) {
         Usuario usuario = obtenerPorId(id);
         return usuarioMapper.aResponseDTO(usuario);

@@ -1,6 +1,6 @@
 package org.example.gestionsolicitudes.Controller;
 
-import org.example.gestionsolicitudes.Dtos.HistorialSolicitudesRequestDTO;
+
 import org.example.gestionsolicitudes.Dtos.HistorialSolicitudesResponseDTO;
 import org.example.gestionsolicitudes.Service.HistorialSolicitudesService;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -1,5 +1,6 @@
 package org.example.gestionsolicitudes.Controller;
 
+import jakarta.validation.Valid;
 import org.example.gestionsolicitudes.Dtos.CrearUsuarioRequestDTO;
 import org.example.gestionsolicitudes.Dtos.LoginRequestDTO;
 import org.example.gestionsolicitudes.Dtos.UsuarioResponseDTO;
@@ -10,11 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 
+@Validated
 @RestController
 @RequestMapping("/usuarios")
 public class UsuarioController {
@@ -24,13 +27,13 @@ public class UsuarioController {
 
     // Crear usuario
     @PostMapping("/crear")
-    public ResponseEntity<UsuarioResponseDTO> crearUsuario(@RequestBody CrearUsuarioRequestDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> crearUsuario(@Valid @RequestBody CrearUsuarioRequestDTO dto) {
         UsuarioResponseDTO response = usuarioService.crearUsuario(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequestDTO loginRequest) {
+    public ResponseEntity<?> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
         try {
             String token = usuarioService.autenticacion(
                     loginRequest.getCorreoElectronico(),

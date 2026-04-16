@@ -7,12 +7,14 @@ import org.example.gestionsolicitudes.Model.*;
 import org.example.gestionsolicitudes.Service.SolicitudService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/solicitudes")
 @RequiredArgsConstructor
 public class SolicitudController {
@@ -30,7 +32,7 @@ public class SolicitudController {
     }
 
     @PutMapping("/priorizar/{idSolicitud}")
-    public ResponseEntity<SolicitudResponseDTO> priorizarSolicitud( @PathVariable("idSolicitud") Long idSolicitud, @RequestBody PrioridadSolicitudRequestDTO dto) {
+    public ResponseEntity<SolicitudResponseDTO> priorizarSolicitud( @PathVariable("idSolicitud") Long idSolicitud,@Valid @RequestBody PrioridadSolicitudRequestDTO dto) {
          SolicitudResponseDTO solicitudPriorizada = solicitudService.priorizarSolicitud(idSolicitud, dto);
          return ResponseEntity.ok(solicitudPriorizada);
     }
@@ -96,7 +98,7 @@ public class SolicitudController {
     @PostMapping("/atender/{idSolicitud}")
     public ResponseEntity<SolicitudResponseDTO> atenderSolicitud(
             @PathVariable("idSolicitud") Long idSolicitud,
-            @RequestBody AtenderSolicitudRequestDTO dto) {
+            @Valid @RequestBody AtenderSolicitudRequestDTO dto) {
 
         SolicitudResponseDTO response =
                 solicitudService.atenderSolicitud(idSolicitud, dto.getObservacion());
