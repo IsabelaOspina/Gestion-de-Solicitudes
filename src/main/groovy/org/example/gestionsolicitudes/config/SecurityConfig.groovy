@@ -35,6 +35,10 @@ class SecurityConfig {
                             .requestMatchers("/solicitudes/estado-tipo").hasRole("ADMINISTRATIVO")
                             .requestMatchers("/solicitudes/solicitante/**").hasRole("ADMINISTRATIVO")
                             .requestMatchers("/historial-solicitudes/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/usuarios/{id}").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/usuarios/rol/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/usuarios/correo/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/usuarios/{id}/activo").hasRole("ADMINISTRATIVO")
 
 
                     // Estudiantes y docentes pueden crear solicitudes
