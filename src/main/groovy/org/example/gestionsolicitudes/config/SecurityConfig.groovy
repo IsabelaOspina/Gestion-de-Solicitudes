@@ -27,6 +27,15 @@ class SecurityConfig {
                             .requestMatchers("/solicitudes/clasificar/**").hasRole("ADMINISTRATIVO")
                             .requestMatchers("/solicitudes/priorizar/**").hasRole("ADMINISTRATIVO")
                             .requestMatchers("/solicitudes/cerrar/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/estado/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/tipo/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/prioridad/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/responsable/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/rango").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/estado-tipo").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/solicitudes/solicitante/**").hasRole("ADMINISTRATIVO")
+                            .requestMatchers("/historial-solicitudes/**").hasRole("ADMINISTRATIVO")
+
 
                     // Estudiantes y docentes pueden crear solicitudes
                             .requestMatchers("/solicitudes/registrar").hasAnyRole("ESTUDIANTE", "DOCENTE")
