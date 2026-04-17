@@ -9,7 +9,6 @@ import jakarta.validation.constraints.Size;
 @Data
 public class PrioridadSolicitudRequestDTO {
 
-    @NotNull(message = "El nivel de prioridad es obligatorio")
     private NivelPrioridad prioridad;
 
     @Size(max = 250, message = "El impacto no puede exceder los 250 caracteres")
@@ -18,5 +17,6 @@ public class PrioridadSolicitudRequestDTO {
     @Size(max = 250, message = "La justificación no puede exceder los 250 caracteres")
     private String justificacion;
 
+    @NotNull(message = "Definir si se usará IA es obligatorio")
     private Boolean usarIA;
 }

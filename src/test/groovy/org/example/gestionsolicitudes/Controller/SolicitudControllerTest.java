@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -82,6 +83,8 @@ class SolicitudControllerTest {
 
         CrearSolicitudRequestDTO request = new CrearSolicitudRequestDTO();
         request.setDescripcion("Nueva solicitud de prueba");
+        request.setTipoSolicitud(TipoSolicitud.HOMOLOGACION);
+        request.setCanalOrigen(CanalOrigen.SAC);
 
         when(solicitudService.registrarSolicitud(any()))
                 .thenReturn(mockResponse());
@@ -90,7 +93,7 @@ class SolicitudControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.descripcion").value("Solicitud de prueba"));
+                .andExpect(jsonPath("$.descripcion").value("Solicitud de prueba"));;
     }
 
 
@@ -98,8 +101,10 @@ class SolicitudControllerTest {
     @DisplayName("200 — Priorizar solicitud")
     void priorizarSolicitud_exitoso() throws Exception {
 
+
         PrioridadSolicitudRequestDTO request = new PrioridadSolicitudRequestDTO();
         request.setPrioridad(NivelPrioridad.ALTA);
+        request.setUsarIA(false);
 
         when(solicitudService.priorizarSolicitud(anyLong(), any()))
                 .thenReturn(mockResponse());
@@ -107,6 +112,7 @@ class SolicitudControllerTest {
         mockMvc.perform(put("/solicitudes/priorizar/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
+                .andDo(print()) // opcional para debug
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.nivelPrioridad").value("MEDIA"));
     }

@@ -75,17 +75,18 @@ class SolicitudServiceTest {
         void registrar_exitoso() {
 
             CrearSolicitudRequestDTO dto = new CrearSolicitudRequestDTO();
+            dto.setDescripcion("Prueba");
+            dto.setTipoSolicitud(TipoSolicitud.HOMOLOGACION);
+            dto.setCanalOrigen(CanalOrigen.SAC);
 
             Authentication authentication = mock(Authentication.class);
-
             SecurityContext securityContext = mock(SecurityContext.class);
-
             SecurityContextHolder.setContext(securityContext);
 
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getName()).thenReturn("estudiante1");
 
-            when(usuarioRepository.findByNombreUsuario("estudiante1"))
+            when(usuarioRepository.findByCorreoElectronico("estudiante1"))
                     .thenReturn(Optional.of(estudiante));
 
             when(solicitudMapper.aEntidad(dto, estudiante)).thenReturn(solicitud);
@@ -104,16 +105,18 @@ class SolicitudServiceTest {
         void registrar_adminFalla() {
 
             CrearSolicitudRequestDTO dto = new CrearSolicitudRequestDTO();
+            dto.setDescripcion("Prueba");
+            dto.setTipoSolicitud(TipoSolicitud.HOMOLOGACION);
+            dto.setCanalOrigen(CanalOrigen.SAC);
 
             Authentication authentication = mock(Authentication.class);
             SecurityContext securityContext = mock(SecurityContext.class);
-
             SecurityContextHolder.setContext(securityContext);
 
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getName()).thenReturn("admin1");
 
-            when(usuarioRepository.findByNombreUsuario("admin1"))
+            when(usuarioRepository.findByCorreoElectronico("admin1"))
                     .thenReturn(Optional.of(admin));
 
             assertThatThrownBy(() ->
@@ -165,16 +168,31 @@ class SolicitudServiceTest {
         @Test
         @DisplayName("Debe asignar correctamente")
         void asignar_exitoso() {
-            when(solicitudRepository.findById(10L)).thenReturn(Optional.of(solicitud));
-            when(usuarioService.obtenerUsuarioActivo(2L)).thenReturn(admin);
-            when(solicitudMapper.aResponseDTO(any())).thenReturn(new SolicitudResponseDTO());
+            solicitud.setEstadoSolicitud(EstadoSolicitud.CLASIFICADA);
+            solicitud.setHistorial(new ArrayList<>());
+
+            admin.setRol(Rol.ADMINISTRATIVO);
+            admin.setActivo(true);
+
+            when(solicitudRepository.findById(10L))
+                    .thenReturn(Optional.of(solicitud));
+
+            when(usuarioService.obtenerUsuarioActivo(2L))
+                    .thenReturn(admin);
+
+            when(solicitudMapper.aResponseDTO(any()))
+                    .thenReturn(new SolicitudResponseDTO());
 
             SolicitudResponseDTO res =
                     solicitudService.asignarResponsable(10L, 2L);
 
             assertThat(res).isNotNull();
-            assertThat(solicitud.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.EN_ATENCION);
-            verify(historialRepository).save(any());
+            assertThat(solicitud.getEstadoSolicitud())
+                    .isEqualTo(EstadoSolicitud.EN_ATENCION);
+
+            assertThat(solicitud.getHistorial()).isNotEmpty();
+
+            verify(solicitudRepository).save(any());
         }
 
         @Test
