@@ -154,6 +154,13 @@ public class SolicitudService {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
                 .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
 
+        if (solicitud.getNivelPrioridad() == null ||
+                solicitud.getEstadoSolicitud() != EstadoSolicitud.CLASIFICADA) {
+
+            throw new IllegalStateException(
+                    "La solicitud debe ser priorizada antes de asignar un responsable");
+        }
+
         Usuario responsable = usuarioService.obtenerUsuarioActivo(idResponsable);
 
         if (!responsable.getActivo()) {
@@ -161,20 +168,24 @@ public class SolicitudService {
         }
 
         if (responsable.getRol() != Rol.ADMINISTRATIVO) {
-            throw new IllegalStateException("Solo los administrativos pueden ser responsables");
+            throw new IllegalStateException(
+                    "Solo los administrativos pueden ser responsables");
         }
 
         if (solicitud.getEstadoSolicitud() == EstadoSolicitud.CERRADA) {
-            throw new IllegalStateException("No se puede asignar responsable a una solicitud cerrada");
+            throw new IllegalStateException(
+                    "No se puede asignar responsable a una solicitud cerrada");
         }
 
         solicitud.setResponsableAsignado(responsable);
+
         solicitud.setEstadoSolicitud(EstadoSolicitud.EN_ATENCION);
 
         HistorialSolicitud historial = new HistorialSolicitud();
         historial.setFechaHora(LocalDateTime.now());
         historial.setAccionRealizada("Asignación de responsable");
-        historial.setObservaciones("Asignado a " + responsable.getNombreUsuario());
+        historial.setObservaciones(
+                "Asignado a " + responsable.getNombreUsuario());
         historial.setSolicitud(solicitud);
 
         if (solicitud.getHistorial() == null) {
