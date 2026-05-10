@@ -18,6 +18,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.example.gestionsolicitudes.Exception.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -56,10 +57,11 @@ public class SolicitudService {
         String correo = auth.getName();
 
         Usuario solicitante = usuarioRepository.findByCorreoElectronico(correo)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() ->
+                        new UsuarioNoEncontradoException());
 
         if (solicitante.getRol() == Rol.ADMINISTRATIVO) {
-            throw new IllegalStateException("Los administrativos no pueden ser solicitantes");
+            throw new UsuarioNoAutorizadoException();
         }
 
         Solicitud solicitud = solicitudMapper.aEntidad(dto, solicitante);
@@ -81,10 +83,10 @@ public class SolicitudService {
     public SolicitudResponseDTO priorizarSolicitud(Long idSolicitud, PrioridadSolicitudRequestDTO dto) {
 
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+                .orElseThrow(SolicitudNoEncontradaException::new);;
 
         if (solicitud.getEstadoSolicitud() != EstadoSolicitud.REGISTRADA) {
-            throw new IllegalStateException("La prioridad solo se puede asignar una vez cuando la solicitud está en estado REGISTRADA");
+            throw new SolicitudYaPriorizadaException();
         }
 
         String detalleAccion = "";
@@ -152,29 +154,26 @@ public class SolicitudService {
     public SolicitudResponseDTO asignarResponsable(Long idSolicitud, Long idResponsable) {
 
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+                .orElseThrow(SolicitudNoEncontradaException::new);
 
         if (solicitud.getNivelPrioridad() == null ||
                 solicitud.getEstadoSolicitud() != EstadoSolicitud.CLASIFICADA) {
 
-            throw new IllegalStateException(
-                    "La solicitud debe ser priorizada antes de asignar un responsable");
+            throw new SolicitudNoPriorizadaException();
         }
 
         Usuario responsable = usuarioService.obtenerUsuarioActivo(idResponsable);
 
         if (!responsable.getActivo()) {
-            throw new IllegalStateException("El responsable no está activo");
+            throw new UsuarioInactivoException();
         }
 
         if (responsable.getRol() != Rol.ADMINISTRATIVO) {
-            throw new IllegalStateException(
-                    "Solo los administrativos pueden ser responsables");
+            throw new UsuarioNoAutorizadoException();
         }
 
         if (solicitud.getEstadoSolicitud() == EstadoSolicitud.CERRADA) {
-            throw new IllegalStateException(
-                    "No se puede asignar responsable a una solicitud cerrada");
+            throw new SolicitudCerradaException();
         }
 
         solicitud.setResponsableAsignado(responsable);
@@ -260,10 +259,10 @@ public class SolicitudService {
     @PreAuthorize("hasRole('ADMINISTRATIVO')")
     public SolicitudResponseDTO cerrarSolicitud(Long idSolicitud, String observacionCierre) {
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+                .orElseThrow(SolicitudNoEncontradaException::new);
 
         if (solicitud.getEstadoSolicitud() != EstadoSolicitud.ATENDIDA) {
-            throw new IllegalStateException("Solo se puede cerrar una solicitud atendida");
+            throw new SolicitudNoAtendidaException();
         }
 
         solicitud.setEstadoSolicitud(EstadoSolicitud.CERRADA);
@@ -282,7 +281,7 @@ public class SolicitudService {
     public ResumenSolicitudResponseDTO generarResumenSolicitud(Long idSolicitud) {
 
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
+                .orElseThrow(SolicitudNoEncontradaException::new);
 
         String resumen = iaService.generarResumen(solicitud);
 
@@ -297,19 +296,19 @@ public class SolicitudService {
     public SolicitudResponseDTO atenderSolicitud(Long idSolicitud, String observacion) {
 
         Solicitud solicitud = solicitudRepository.findById(idSolicitud)
-                .orElseThrow(() -> new IllegalArgumentException("Solicitud no encontrada"));
-
+                .orElseThrow(SolicitudNoEncontradaException::new);
         if (solicitud.getEstadoSolicitud() != EstadoSolicitud.EN_ATENCION) {
-            throw new IllegalStateException("Solo se pueden atender solicitudes en estado EN_ATENCION");
+            throw new SolicitudNoEnAtencionException();
         }
 
         if (observacion == null || observacion.trim().isEmpty()) {
-            throw new IllegalArgumentException("Debe describir cómo se atendió la solicitud");
+            throw new SolicitudException(
+                    "Debe describir cómo se atendió la solicitud");
         }
 
         // Verificar que tenga responsable asignado
         if (solicitud.getResponsableAsignado() == null) {
-            throw new IllegalStateException("La solicitud no tiene responsable asignado");
+            throw new SolicitudSinResponsableException();
         }
 
         // Obtener usuario autenticado
@@ -317,12 +316,12 @@ public class SolicitudService {
         String correo = auth.getName();
 
         Usuario usuarioActual = usuarioRepository.findByCorreoElectronico(correo)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(UsuarioNoEncontradoException::new);
 
         // Verificar que sea el responsable asignado
         if (!solicitud.getResponsableAsignado().getIdUsuario()
                 .equals(usuarioActual.getIdUsuario())) {
-            throw new IllegalStateException("Solo el responsable asignado puede atender la solicitud");
+            throw new UsuarioNoAutorizadoException();
         }
 
         // Cambiar estado

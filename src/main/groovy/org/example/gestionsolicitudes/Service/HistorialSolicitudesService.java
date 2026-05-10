@@ -12,6 +12,7 @@ import org.example.gestionsolicitudes.Repository.HistorialSolicitudesRepository;
 import org.example.gestionsolicitudes.Repository.SolicitudRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.example.gestionsolicitudes.Exception.*;
 
 import java.util.List;
 
@@ -32,7 +33,8 @@ public class HistorialSolicitudesService {
     //RF-06
     public HistorialSolicitudesResponseDTO registrarAccion(HistorialSolicitudesRequestDTO dto) {
         Solicitud solicitud = solicitudRepository.findById(dto.getIdSolicitud())
-                .orElseThrow(() -> new EntityNotFoundException("Solicitud no encontrada"));
+                .orElseThrow(
+                        SolicitudNoEncontradaException::new);
 
         HistorialSolicitud historial = historialMapper.aEntidad(dto, solicitud);
         historial = historialRepository.save(historial);

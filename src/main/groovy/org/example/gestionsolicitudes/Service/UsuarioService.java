@@ -3,6 +3,7 @@ package org.example.gestionsolicitudes.Service;
 import lombok.Getter;
 import org.example.gestionsolicitudes.Dtos.CrearUsuarioRequestDTO;
 import org.example.gestionsolicitudes.Dtos.UsuarioResponseDTO;
+import org.example.gestionsolicitudes.Exception.*;
 import org.example.gestionsolicitudes.Mapper.UsuarioMapper;
 import org.example.gestionsolicitudes.Model.Rol;
 import org.example.gestionsolicitudes.Model.Usuario;
@@ -34,7 +35,7 @@ public class UsuarioService {
     public UsuarioResponseDTO crearUsuario(CrearUsuarioRequestDTO dto) {
 
         if (usuarioRepository.existsByCorreoElectronico(dto.getCorreo())) {
-            throw new RuntimeException("El correo ya está registrado");
+            throw new UsuarioYaExisteException();
         }
 
         Usuario usuario = usuarioMapper.aEntidad(dto);
@@ -59,7 +60,7 @@ public class UsuarioService {
 
     public Usuario obtenerPorId(Long id) {
         return usuarioRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(UsuarioNoEncontradoException::new);
     }
 
     public List<UsuarioResponseDTO> obtenerUsuariosPorRol(Rol rol) {
@@ -71,7 +72,7 @@ public class UsuarioService {
 
     public Usuario obtenerPorCorreo(String correo) {
         return usuarioRepository.findByCorreoElectronico(correo)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(UsuarioNoEncontradoException::new);
     }
 
     public UsuarioResponseDTO obtenerUsuarioDTO(Long id) {
@@ -89,7 +90,7 @@ public class UsuarioService {
         Usuario usuario = obtenerPorId(id);
 
         if (!usuario.getActivo()) {
-            throw new RuntimeException("El usuario está inactivo");
+            throw new UsuarioInactivoException();
         }
     }
 
@@ -97,7 +98,7 @@ public class UsuarioService {
         Usuario usuario = obtenerPorId(id);
 
         if (!usuario.getActivo()) {
-            throw new RuntimeException("El usuario está inactivo");
+            throw new UsuarioInactivoException();
         }
 
         return usuario;
