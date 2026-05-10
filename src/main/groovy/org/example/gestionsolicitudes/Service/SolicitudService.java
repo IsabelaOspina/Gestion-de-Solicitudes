@@ -3,10 +3,7 @@ package org.example.gestionsolicitudes.Service;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
-import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
-import org.example.gestionsolicitudes.Dtos.ResumenSolicitudResponseDTO;
-import org.example.gestionsolicitudes.Dtos.SolicitudResponseDTO;
+import org.example.gestionsolicitudes.Dtos.*;
 import org.example.gestionsolicitudes.Mapper.HistorialSolicitudesMapper;
 import org.example.gestionsolicitudes.Mapper.SolicitudMapper;
 import org.example.gestionsolicitudes.Model.*;
@@ -124,8 +121,13 @@ public class SolicitudService {
 
             solicitudMapper.actualizarPrioridad(solicitud, dto);
 
+            String impacto = (dto.getImpacto() != null && !dto.getImpacto().isBlank())
+                    ? ". Impacto: " + dto.getImpacto()
+                    : "";
+
             detalleAccion = "Priorización manual. Prioridad: "
-                    + solicitud.getNivelPrioridad();
+                    + solicitud.getNivelPrioridad()
+                    + impacto;
         }
 
         solicitud.asignarFechaRegistroYLimite();
@@ -223,7 +225,8 @@ public class SolicitudService {
     }
 
     @PreAuthorize("hasRole('ADMINISTRATIVO')")
-    public List<SolicitudResponseDTO> consultarPorResponsable(Usuario responsable) {
+    public List<SolicitudResponseDTO> consultarPorResponsable(Long idResponsable) {
+        Usuario responsable = usuarioService.obtenerUsuarioActivo(idResponsable);
         return solicitudRepository.findByResponsableAsignado(responsable)
                 .stream()
                 .map(solicitudMapper::aResponseDTO)
@@ -247,7 +250,8 @@ public class SolicitudService {
     }
 
     @PreAuthorize("hasRole('ADMINISTRATIVO')")
-    public List<SolicitudResponseDTO> consultarPorSolicitante(Usuario solicitante) {
+    public List<SolicitudResponseDTO> consultarPorSolicitante(Long idSolicitante) {
+        Usuario solicitante = usuarioService.obtenerUsuarioActivo(idSolicitante);
         return solicitudRepository.findBySolicitante(solicitante)
                 .stream()
                 .map(solicitudMapper::aResponseDTO)

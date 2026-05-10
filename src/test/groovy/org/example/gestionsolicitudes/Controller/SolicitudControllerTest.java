@@ -1,10 +1,7 @@
 package org.example.gestionsolicitudes.Controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.example.gestionsolicitudes.Dtos.CrearSolicitudRequestDTO;
-import org.example.gestionsolicitudes.Dtos.PrioridadSolicitudRequestDTO;
-import org.example.gestionsolicitudes.Dtos.ResumenSolicitudResponseDTO;
-import org.example.gestionsolicitudes.Dtos.SolicitudResponseDTO;
+import org.example.gestionsolicitudes.Dtos.*;
 import org.example.gestionsolicitudes.Model.CanalOrigen;
 import org.example.gestionsolicitudes.Model.EstadoSolicitud;
 import org.example.gestionsolicitudes.Model.NivelPrioridad;
@@ -125,7 +122,7 @@ class SolicitudControllerTest {
         when(solicitudService.asignarResponsable(anyLong(), anyLong()))
                 .thenReturn(mockResponse());
 
-        mockMvc.perform(post("/solicitudes/1/asignar/2"))
+        mockMvc.perform(put("/solicitudes/1/asignar/2"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.descripcion").value("Solicitud de prueba"));
     }
@@ -168,13 +165,16 @@ class SolicitudControllerTest {
         when(solicitudService.cerrarSolicitud(anyLong(), anyString()))
                 .thenReturn(mockResponse());
 
-        mockMvc.perform(post("/solicitudes/cerrar/1")
+        mockMvc.perform(put("/solicitudes/cerrar/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("\"Solicitud finalizada\""))
+                        .content("""
+                        {
+                            "observacionCierre": "Solicitud finalizada"
+                        }
+                    """))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.descripcion").value("Solicitud de prueba"));
     }
-
 
     @Test
     @DisplayName("200 — Generar resumen de solicitud")

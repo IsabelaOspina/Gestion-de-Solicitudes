@@ -1,6 +1,9 @@
 package org.example.gestionsolicitudes.Service;
 
 import org.example.gestionsolicitudes.Dtos.*;
+import org.example.gestionsolicitudes.Exception.SolicitudNoAtendidaException;
+import org.example.gestionsolicitudes.Exception.SolicitudNoEncontradaException;
+import org.example.gestionsolicitudes.Exception.UsuarioNoAutorizadoException;
 import org.example.gestionsolicitudes.Mapper.HistorialSolicitudesMapper;
 import org.example.gestionsolicitudes.Mapper.SolicitudMapper;
 import org.example.gestionsolicitudes.Model.*;
@@ -20,7 +23,6 @@ import java.util.*;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 @DisplayName("SolicitudService — Tests unitarios")
 class SolicitudServiceTest {
@@ -93,8 +95,7 @@ class SolicitudServiceTest {
             when(solicitudRepository.save(any())).thenReturn(solicitud);
             when(solicitudMapper.aResponseDTO(any())).thenReturn(new SolicitudResponseDTO());
 
-            SolicitudResponseDTO res =
-                    solicitudService.registrarSolicitud(dto);
+            SolicitudResponseDTO res = solicitudService.registrarSolicitud(dto);
 
             assertThat(res).isNotNull();
             verify(solicitudRepository).save(any());
@@ -119,9 +120,8 @@ class SolicitudServiceTest {
             when(usuarioRepository.findByCorreoElectronico("admin1"))
                     .thenReturn(Optional.of(admin));
 
-            assertThatThrownBy(() ->
-                    solicitudService.registrarSolicitud(dto))
-                    .isInstanceOf(IllegalStateException.class);
+            assertThatThrownBy(() -> solicitudService.registrarSolicitud(dto))
+                    .isInstanceOf(UsuarioNoAutorizadoException.class);
         }
     }
 
@@ -142,8 +142,7 @@ class SolicitudServiceTest {
             when(solicitudRepository.save(any())).thenReturn(solicitud);
             when(solicitudMapper.aResponseDTO(any())).thenReturn(new SolicitudResponseDTO());
 
-            SolicitudResponseDTO res =
-                    solicitudService.priorizarSolicitud(10L, dto);
+            SolicitudResponseDTO res = solicitudService.priorizarSolicitud(10L, dto);
 
             assertThat(res).isNotNull();
             assertThat(solicitud.getNivelPrioridad()).isEqualTo(NivelPrioridad.ALTA);
@@ -156,7 +155,7 @@ class SolicitudServiceTest {
 
             assertThatThrownBy(() ->
                     solicitudService.priorizarSolicitud(10L, new PrioridadSolicitudRequestDTO()))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(SolicitudNoEncontradaException.class);
         }
     }
 
@@ -169,41 +168,35 @@ class SolicitudServiceTest {
         @DisplayName("Debe asignar correctamente")
         void asignar_exitoso() {
             solicitud.setEstadoSolicitud(EstadoSolicitud.CLASIFICADA);
+            solicitud.setNivelPrioridad(NivelPrioridad.ALTA);
             solicitud.setHistorial(new ArrayList<>());
 
             admin.setRol(Rol.ADMINISTRATIVO);
             admin.setActivo(true);
 
-            when(solicitudRepository.findById(10L))
-                    .thenReturn(Optional.of(solicitud));
+            when(solicitudRepository.findById(10L)).thenReturn(Optional.of(solicitud));
+            when(usuarioService.obtenerUsuarioActivo(2L)).thenReturn(admin);
+            when(solicitudMapper.aResponseDTO(any())).thenReturn(new SolicitudResponseDTO());
 
-            when(usuarioService.obtenerUsuarioActivo(2L))
-                    .thenReturn(admin);
-
-            when(solicitudMapper.aResponseDTO(any()))
-                    .thenReturn(new SolicitudResponseDTO());
-
-            SolicitudResponseDTO res =
-                    solicitudService.asignarResponsable(10L, 2L);
+            SolicitudResponseDTO res = solicitudService.asignarResponsable(10L, 2L);
 
             assertThat(res).isNotNull();
-            assertThat(solicitud.getEstadoSolicitud())
-                    .isEqualTo(EstadoSolicitud.EN_ATENCION);
-
+            assertThat(solicitud.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.EN_ATENCION);
             assertThat(solicitud.getHistorial()).isNotEmpty();
-
             verify(solicitudRepository).save(any());
         }
 
         @Test
         @DisplayName("Debe fallar si no es administrativo")
         void asignar_noAdmin() {
+            solicitud.setEstadoSolicitud(EstadoSolicitud.CLASIFICADA);
+            solicitud.setNivelPrioridad(NivelPrioridad.ALTA);
+
             when(solicitudRepository.findById(10L)).thenReturn(Optional.of(solicitud));
             when(usuarioService.obtenerUsuarioActivo(1L)).thenReturn(estudiante);
 
-            assertThatThrownBy(() ->
-                    solicitudService.asignarResponsable(10L, 1L))
-                    .isInstanceOf(IllegalStateException.class);
+            assertThatThrownBy(() -> solicitudService.asignarResponsable(10L, 1L))
+                    .isInstanceOf(UsuarioNoAutorizadoException.class); //
         }
     }
 
@@ -221,8 +214,7 @@ class SolicitudServiceTest {
             when(solicitudRepository.save(any())).thenReturn(solicitud);
             when(solicitudMapper.aResponseDTO(any())).thenReturn(new SolicitudResponseDTO());
 
-            SolicitudResponseDTO res =
-                    solicitudService.cerrarSolicitud(10L, "Resuelto");
+            SolicitudResponseDTO res = solicitudService.cerrarSolicitud(10L, "Resuelto");
 
             assertThat(res).isNotNull();
             assertThat(solicitud.getEstadoSolicitud()).isEqualTo(EstadoSolicitud.CERRADA);
@@ -235,9 +227,8 @@ class SolicitudServiceTest {
 
             when(solicitudRepository.findById(10L)).thenReturn(Optional.of(solicitud));
 
-            assertThatThrownBy(() ->
-                    solicitudService.cerrarSolicitud(10L, "x"))
-                    .isInstanceOf(IllegalStateException.class);
+            assertThatThrownBy(() -> solicitudService.cerrarSolicitud(10L, "x"))
+                    .isInstanceOf(SolicitudNoAtendidaException.class); //
         }
     }
 
@@ -252,8 +243,7 @@ class SolicitudServiceTest {
             when(solicitudRepository.findById(10L)).thenReturn(Optional.of(solicitud));
             when(iaService.generarResumen(any())).thenReturn("Resumen generado");
 
-            ResumenSolicitudResponseDTO res =
-                    solicitudService.generarResumenSolicitud(10L);
+            ResumenSolicitudResponseDTO res = solicitudService.generarResumenSolicitud(10L);
 
             assertThat(res).isNotNull();
             assertThat(res.getResumenGenerado()).isEqualTo("Resumen generado");
@@ -264,9 +254,8 @@ class SolicitudServiceTest {
         void resumen_noExiste() {
             when(solicitudRepository.findById(10L)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() ->
-                    solicitudService.generarResumenSolicitud(10L))
-                    .isInstanceOf(IllegalArgumentException.class);
+            assertThatThrownBy(() -> solicitudService.generarResumenSolicitud(10L))
+                    .isInstanceOf(SolicitudNoEncontradaException.class); //
         }
     }
 }

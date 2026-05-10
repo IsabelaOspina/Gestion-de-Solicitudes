@@ -37,7 +37,7 @@ public class SolicitudController {
          return ResponseEntity.ok(solicitudPriorizada);
     }
 
-    @PostMapping("/{idSolicitud}/asignar/{idResponsable}")
+    @PutMapping("/{idSolicitud}/asignar/{idResponsable}")
     public ResponseEntity<SolicitudResponseDTO> asignarResponsable(@PathVariable("idSolicitud") Long idSolicitud, @PathVariable("idResponsable") Long idResponsable) {
         SolicitudResponseDTO solicitudAsignada = solicitudService.asignarResponsable(idSolicitud, idResponsable);
         return ResponseEntity.ok(solicitudAsignada);
@@ -60,8 +60,7 @@ public class SolicitudController {
 
     @GetMapping("/responsable/{idResponsable}")
     public ResponseEntity<List<SolicitudResponseDTO>> consultarPorResponsable(@PathVariable("idResponsable") Long idResponsable) {
-        Usuario responsable = solicitudService.getUsuarioService().obtenerPorId(idResponsable);
-        return ResponseEntity.ok(solicitudService.consultarPorResponsable(responsable));
+        return ResponseEntity.ok(solicitudService.consultarPorResponsable(idResponsable));
     }
 
     @GetMapping("/rango")
@@ -80,14 +79,15 @@ public class SolicitudController {
 
     @GetMapping("/solicitante/{idSolicitante}")
     public ResponseEntity<List<SolicitudResponseDTO>> consultarPorSolicitante(@PathVariable("idSolicitante") Long idSolicitante) {
-        Usuario solicitante = solicitudService.getUsuarioService().obtenerPorId(idSolicitante);
-        return ResponseEntity.ok(solicitudService.consultarPorSolicitante(solicitante));
+        return ResponseEntity.ok(solicitudService.consultarPorSolicitante(idSolicitante));
     }
 
-    @PostMapping("/cerrar/{idSolicitud}")
-    public ResponseEntity<SolicitudResponseDTO> cerrarSolicitud(@PathVariable("idSolicitud") Long idSolicitud, @RequestBody String observacionCierre) {
-        SolicitudResponseDTO solicitudCerrada = solicitudService.cerrarSolicitud(idSolicitud, observacionCierre);
-        return ResponseEntity.ok(solicitudCerrada);
+    @PutMapping("/cerrar/{idSolicitud}")
+    public ResponseEntity<SolicitudResponseDTO> cerrarSolicitud(
+            @PathVariable("idSolicitud") Long idSolicitud,
+            @Valid @RequestBody CerrarSolicitudRequestDTO dto) {
+        return ResponseEntity.ok(
+                solicitudService.cerrarSolicitud(idSolicitud, dto.getObservacionCierre()));
     }
 
     @GetMapping("/{idSolicitud}/resumen")
@@ -96,7 +96,7 @@ public class SolicitudController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/atender/{idSolicitud}")
+    @PutMapping("/atender/{idSolicitud}")
     public ResponseEntity<SolicitudResponseDTO> atenderSolicitud(
             @PathVariable("idSolicitud") Long idSolicitud,
             @Valid @RequestBody AtenderSolicitudRequestDTO dto) {

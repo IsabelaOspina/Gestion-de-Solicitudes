@@ -24,15 +24,50 @@ public class IAService {
     @Autowired
     private IAServiceFallback fallback;
 
-    @Autowired
-    private PromptService promptService;
+    private String construirPromptResumen(Solicitud solicitud) {
+
+        StringBuilder prompt = new StringBuilder();
+
+        prompt.append("Actúa como un asistente administrativo profesional.\n");
+        prompt.append("Analiza la siguiente solicitud y genera un resumen breve, claro y formal.\n");
+        prompt.append("El resumen debe tener máximo 3 líneas y no debe incluir títulos ni introducciones.\n\n");
+
+        prompt.append("DATOS DE LA SOLICITUD:\n");
+        prompt.append("Descripción: ").append(solicitud.getDescripcion()).append("\n");
+        prompt.append("Estado: ").append(solicitud.getEstadoSolicitud()).append("\n");
+        prompt.append("Tipo: ").append(solicitud.getTipoSolicitud()).append("\n");
+
+        if (solicitud.getResponsableAsignado() != null) {
+            prompt.append("Responsable: ")
+                    .append(solicitud.getResponsableAsignado().getNombreUsuario())
+                    .append("\n");
+        }
+
+        prompt.append("\nHISTORIAL RECIENTE:\n");
+
+        if (solicitud.getHistorial() != null) {
+            solicitud.getHistorial().stream().limit(5).forEach(h -> {
+                prompt.append("- ")
+                        .append(h.getFechaHora())
+                        .append(": ")
+                        .append(h.getAccionRealizada())
+                        .append("\n");
+            });
+        }
+
+        prompt.append("\nResponde SOLO con el resumen final.");
+
+        return prompt.toString();
+    }
+
+
 
     //RF-09
     public String generarResumen(Solicitud solicitud) {
 
         try {
 
-            String prompt = promptService.construirPrompt(solicitud);
+            String prompt = construirPromptResumen(solicitud);
 
             String url = "https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=" + apiKey;
 
